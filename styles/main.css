@@ -649,6 +649,15 @@ mark {
   }
 }
 
+.stat.is-over {
+  border-color: var(--color-danger);
+  border-width: 2px;
+}
+
+.stat.is-over .stat-value {
+  color: var(--color-danger);
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

@@ -1,5 +1,5 @@
 import { getState, subscribe } from "./state.js";
-import { totalSpent, topCategory, lastSevenDays, convertAmount } from "./stats.js";
+import { totalSpent, topCategory, lastSevenDays, capStatus, convertAmount } from "./stats.js";
 import { createElement, formatAmount, formatMoney, setText } from "./ui.js";
 
 const statCount = document.querySelector("#statCount");
@@ -9,6 +9,11 @@ const statTopCategoryNote = document.querySelector("#statTopCategoryNote");
 const trendChart = document.querySelector("#trendChart");
 const trendNote = document.querySelector("#trendNote");
 const trendSummary = document.querySelector("#trendSummary");
+const capCard = document.querySelector("#capCard");
+const statCap = document.querySelector("#statCap");
+const statCapNote = document.querySelector("#statCapNote");
+const capPolite = document.querySelector("#capPolite");
+const capAssertive = document.querySelector("#capAssertive");
 
 function renderTotals(records, settings) {
   const top = topCategory(records);
@@ -41,10 +46,36 @@ function renderTrend(records, settings) {
   setText(trendSummary, "Spending by day, oldest first: " + spokenDays.join("; ") + ".");
 }
 
+function renderCap(records, settings) {
+  const status = capStatus(totalSpent(records), settings.budgetCap);
+  const difference = formatMoney(status.difference, settings);
+  capCard.classList.toggle("is-over", status.state === "over");
+  if (status.state === "none") {
+    setText(statCap, "No cap set");
+    setText(statCapNote, "Set a cap in Settings to track what is left.");
+    setText(capPolite, "");
+    setText(capAssertive, "");
+    return;
+  }
+  const cap = formatMoney(settings.budgetCap, settings);
+  if (status.state === "over") {
+    setText(statCap, difference + " over");
+    setText(statCapNote, "You have passed your cap of " + cap + ".");
+    setText(capPolite, "");
+    setText(capAssertive, "Budget exceeded. You are " + difference + " over your cap of " + cap + ".");
+    return;
+  }
+  setText(statCap, difference + " left");
+  setText(statCapNote, "Out of a cap of " + cap + ".");
+  setText(capAssertive, "");
+  setText(capPolite, "You have " + difference + " left of your " + cap + " cap.");
+}
+
 function render() {
   const { records, settings } = getState();
   renderTotals(records, settings);
   renderTrend(records, settings);
+  renderCap(records, settings);
 }
 
 export function initDashboard() {

@@ -43,3 +43,14 @@ export function lastSevenDays(records, today = new Date()) {
   }
   return days;
 }
+
+export function capStatus(total, cap) {
+  if (cap === null) {
+    return { state: "none", difference: 0 };
+  }
+  const difference = Math.round((cap - total) * 100) / 100;
+  if (difference < 0) {
+    return { state: "over", difference: -difference };
+  }
+  return { state: "under", difference };
+}
