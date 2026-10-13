@@ -1,7 +1,9 @@
 import {
   collapseSpaces,
   validateDescription,
-  validateAmount
+  validateAmount,
+  validateDate,
+  validateCategory
 } from "../scripts/validators.js";
 
 const results = [];
@@ -69,6 +71,24 @@ group("Amount", () => {
   }
   for (const value of ["", "01", "12.", ".5", "12.505", "-3", "1,000", "1e3", "abc"]) {
     rejects(validateAmount, value);
+  }
+});
+
+group("Date", () => {
+  for (const value of ["2025-09-29", "2024-02-29", "2025-12-31", "2025-01-01"]) {
+    accepts(validateDate, value);
+  }
+  for (const value of ["", "2025-02-30", "2023-02-29", "2025-04-31", "2025-13-01", "2025-00-10", "2025-1-5", "29-09-2025"]) {
+    rejects(validateDate, value);
+  }
+});
+
+group("Category", () => {
+  for (const value of ["Food", "Study Group", "Take-away"]) {
+    accepts(validateCategory, value);
+  }
+  for (const value of ["", "Food2", " Food", "Food ", "Food  Drinks", "Food-", "Fees!"]) {
+    rejects(validateCategory, value);
   }
 });
 
