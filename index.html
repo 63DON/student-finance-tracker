@@ -36,6 +36,32 @@
     </section>
     <section id="dashboard" class="section" aria-labelledby="dashboardHeading">
       <h2 id="dashboardHeading">Dashboard</h2>
+      <ul class="stat-list">
+        <li class="stat">
+          <h3>Total records</h3>
+          <p class="stat-value" id="statCount">0</p>
+        </li>
+        <li class="stat">
+          <h3>Total spent</h3>
+          <p class="stat-value" id="statTotal">0</p>
+        </li>
+        <li class="stat">
+          <h3>Top category</h3>
+          <p class="stat-value" id="statTopCategory">None yet</p>
+          <p class="stat-note" id="statTopCategoryNote"></p>
+        </li>
+        <li class="stat" id="capCard">
+          <h3>Budget</h3>
+          <p class="stat-value" id="statCap">No cap set</p>
+          <p class="stat-note" id="statCapNote">Set a cap in Settings to track what is left.</p>
+        </li>
+      </ul>
+      <div class="panel trend">
+        <h3 id="trendHeading">Last 7 days</h3>
+        <div class="chart" id="trendChart" aria-hidden="true"></div>
+        <p class="stat-note" id="trendNote">Daily spending will show here once you add records.</p>
+        <p class="visually-hidden" id="trendSummary"></p>
+      </div>
     </section>
     <section id="records" class="section" aria-labelledby="recordsHeading">
       <h2 id="recordsHeading" tabindex="-1">Records</h2>
