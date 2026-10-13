@@ -1,5 +1,6 @@
 import { getState, subscribe } from "./state.js";
 import { createElement, formatAmount } from "./ui.js";
+import { sortRecords } from "./search.js";
 
 const container = document.querySelector("#recordsContainer");
 const wideScreen = window.matchMedia("(min-width: 48em)");
@@ -10,6 +11,11 @@ const columns = [
   { key: "category", label: "Category", sortable: false },
   { key: "amount", label: "Amount", sortable: true }
 ];
+
+const view = {
+  sortKey: "date",
+  sortDirection: "descending"
+};
 
 function displayTexts(record) {
   return {
@@ -33,8 +39,35 @@ function buildAmount(texts) {
   return [currency + " ", createElement("span", cellAttributes(texts.amount))];
 }
 
+function nextDirection(key) {
+  if (view.sortKey !== key) {
+    return "ascending";
+  }
+  return view.sortDirection === "ascending" ? "descending" : "ascending";
+}
+
+function sortArrow(key) {
+  if (view.sortKey !== key) {
+    return "↕";
+  }
+  return view.sortDirection === "ascending" ? "↑" : "↓";
+}
+
 function buildHeaderCell(column) {
-  return createElement("th", { scope: "col", text: column.label });
+  if (!column.sortable) {
+    return createElement("th", { scope: "col", text: column.label });
+  }
+  const button = createElement("button", {
+    type: "button",
+    className: "sort-button",
+    "data-sort-key": column.key,
+    "data-focus-key": "sort-" + column.key
+  }, [
+    column.label,
+    createElement("span", { className: "sort-arrow", "aria-hidden": "true", text: sortArrow(column.key) })
+  ]);
+  const sortState = view.sortKey === column.key ? view.sortDirection : "none";
+  return createElement("th", { scope: "col", "aria-sort": sortState }, [button]);
 }
 
 function buildRow(record) {
@@ -84,16 +117,40 @@ function buildEmptyState(message) {
 
 function render() {
   const { records } = getState();
-  const visible = records;
+  const visible = sortRecords(records, view.sortKey, view.sortDirection);
+  const focusKey = document.activeElement?.dataset.focusKey;
   if (records.length === 0) {
     container.replaceChildren(buildEmptyState("No records yet. Add your first one with the form below."));
     return;
   }
   container.replaceChildren(wideScreen.matches ? buildTable(visible) : buildCardList(visible));
+  restoreFocus(focusKey);
+}
+
+function restoreFocus(focusKey) {
+  if (!focusKey) {
+    return;
+  }
+  const target = container.querySelector("[data-focus-key=\"" + focusKey + "\"]");
+  if (target) {
+    target.focus();
+  }
+}
+
+function handleSortClick(event) {
+  const button = event.target.closest("[data-sort-key]");
+  if (!button) {
+    return;
+  }
+  const key = button.dataset.sortKey;
+  view.sortDirection = nextDirection(key);
+  view.sortKey = key;
+  render();
 }
 
 export function initRecords() {
   subscribe(render);
   wideScreen.addEventListener("change", render);
+  container.addEventListener("click", handleSortClick);
   render();
 }
