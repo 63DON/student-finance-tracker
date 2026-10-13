@@ -123,6 +123,58 @@
     </section>
     <section id="settings" class="section" aria-labelledby="settingsHeading">
       <h2 id="settingsHeading">Settings</h2>
+      <div class="settings-grid">
+        <form class="panel" id="currencyForm" novalidate>
+          <h3>Currencies</h3>
+          <p class="field-hint">Amounts are saved in the base currency. A rate is how much of the other currency one unit of the base buys.</p>
+          <div class="field">
+            <label for="baseCurrencyInput">Base currency code</label>
+            <input id="baseCurrencyInput" type="text" autocomplete="off" maxlength="3" aria-describedby="baseCurrencyError">
+            <p class="field-error" id="baseCurrencyError"></p>
+          </div>
+          <div class="field-pair">
+            <div class="field">
+              <label for="otherCode1Input">Second code</label>
+              <input id="otherCode1Input" type="text" autocomplete="off" maxlength="3" aria-describedby="otherCode1Error">
+              <p class="field-error" id="otherCode1Error"></p>
+            </div>
+            <div class="field">
+              <label for="otherRate1Input">Second rate</label>
+              <input id="otherRate1Input" type="text" inputmode="decimal" autocomplete="off" aria-describedby="otherRate1Error">
+              <p class="field-error" id="otherRate1Error"></p>
+            </div>
+          </div>
+          <div class="field-pair">
+            <div class="field">
+              <label for="otherCode2Input">Third code</label>
+              <input id="otherCode2Input" type="text" autocomplete="off" maxlength="3" aria-describedby="otherCode2Error">
+              <p class="field-error" id="otherCode2Error"></p>
+            </div>
+            <div class="field">
+              <label for="otherRate2Input">Third rate</label>
+              <input id="otherRate2Input" type="text" inputmode="decimal" autocomplete="off" aria-describedby="otherRate2Error">
+              <p class="field-error" id="otherRate2Error"></p>
+            </div>
+          </div>
+          <button class="button" type="submit">Save currencies</button>
+          <div class="field field-spaced">
+            <label for="displayCurrencySelect">Show amounts in</label>
+            <select id="displayCurrencySelect"></select>
+          </div>
+          <p class="status-line" id="currencyStatus" role="status"></p>
+        </form>
+        <form class="panel" id="budgetForm" novalidate>
+          <h3>Budget cap</h3>
+          <div class="field">
+            <label for="budgetCapInput">Spending cap in the base currency</label>
+            <input id="budgetCapInput" type="text" inputmode="decimal" autocomplete="off" aria-describedby="budgetCapHint budgetCapError">
+            <p class="field-hint" id="budgetCapHint">Leave it empty for no cap. The cap covers everything you have recorded.</p>
+            <p class="field-error" id="budgetCapError"></p>
+          </div>
+          <button class="button" type="submit">Save cap</button>
+          <p class="status-line" id="budgetStatus" role="status"></p>
+        </form>
+      </div>
     </section>
   </main>
   <footer class="site-footer">
