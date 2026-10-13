@@ -662,6 +662,28 @@ mark {
   margin: 0;
 }
 
+.dialog {
+  width: min(28rem, calc(100% - 2rem));
+  padding: var(--space-5);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.dialog::backdrop {
+  background-color: rgb(0 0 0 / 0.6);
+}
+
+.dialog h2 {
+  font-size: var(--text-large);
+}
+
+.dialog p {
+  margin-bottom: var(--space-4);
+  overflow-wrap: anywhere;
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);
