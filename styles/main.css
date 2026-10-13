@@ -477,6 +477,45 @@ main:focus-visible {
   white-space: nowrap;
 }
 
+.record-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.record-card {
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.record-title {
+  margin-bottom: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.record-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+}
+
+.record-details dt {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.record-details dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

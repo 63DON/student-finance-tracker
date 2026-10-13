@@ -2,6 +2,7 @@ import { getState, subscribe } from "./state.js";
 import { createElement, formatAmount } from "./ui.js";
 
 const container = document.querySelector("#recordsContainer");
+const wideScreen = window.matchMedia("(min-width: 48em)");
 
 const columns = [
   { key: "date", label: "Date", sortable: true },
@@ -54,6 +55,29 @@ function buildTable(records) {
   ]);
 }
 
+function buildDetail(label, content) {
+  return createElement("div", {}, [
+    createElement("dt", { text: label }),
+    createElement("dd", {}, content)
+  ]);
+}
+
+function buildCard(record) {
+  const texts = displayTexts(record);
+  return createElement("li", entryAttributes(record, "record-card"), [
+    createElement("h3", { className: "record-title", ...cellAttributes(texts.description) }),
+    createElement("dl", { className: "record-details" }, [
+      buildDetail("Date", [createElement("span", cellAttributes(texts.date))]),
+      buildDetail("Category", [createElement("span", cellAttributes(texts.category))]),
+      buildDetail("Amount", buildAmount(texts))
+    ])
+  ]);
+}
+
+function buildCardList(records) {
+  return createElement("ul", { className: "record-cards" }, records.map(buildCard));
+}
+
 function buildEmptyState(message) {
   return createElement("p", { className: "empty-state", text: message });
 }
@@ -65,10 +89,11 @@ function render() {
     container.replaceChildren(buildEmptyState("No records yet. Add your first one with the form below."));
     return;
   }
-  container.replaceChildren(buildTable(visible));
+  container.replaceChildren(wideScreen.matches ? buildTable(visible) : buildCardList(visible));
 }
 
 export function initRecords() {
   subscribe(render);
+  wideScreen.addEventListener("change", render);
   render();
 }
