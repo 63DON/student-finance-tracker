@@ -196,12 +196,23 @@ function handleSortSelect() {
   render();
 }
 
+function handleHintClick(event) {
+  const button = event.target.closest("[data-pattern]");
+  if (!button) {
+    return;
+  }
+  searchInput.value = button.dataset.pattern;
+  handleSearchInput();
+  searchInput.focus();
+}
+
 export function initRecords() {
   subscribe(render);
   wideScreen.addEventListener("change", render);
   container.addEventListener("click", handleSortClick);
   sortSelect.addEventListener("change", handleSortSelect);
   searchInput.addEventListener("input", handleSearchInput);
+  document.querySelector("#hintList").addEventListener("click", handleHintClick);
   caseToggle.addEventListener("change", () => {
     view.ignoreCase = caseToggle.checked;
     render();

@@ -88,6 +88,14 @@
           </select>
         </div>
       </div>
+      <div class="hints">
+        <p class="field-hint" id="hintsLabel">Example patterns. Press one to try it:</p>
+        <ul class="hint-list" id="hintList" aria-labelledby="hintsLabel">
+          <li><button class="button button-small" type="button" data-pattern="\.\d{2}\b"><code>\.\d{2}\b</code> cents present</button></li>
+          <li><button class="button button-small" type="button" data-pattern="(coffee|tea)"><code>(coffee|tea)</code> beverage keyword</button></li>
+          <li><button class="button button-small" type="button" data-pattern="\b(\w+)\s+\1\b"><code>\b(\w+)\s+\1\b</code> duplicate word</button></li>
+        </ul>
+      </div>
       <p class="status-line" id="searchStatus" aria-live="polite"></p>
       <p class="status-line" id="recordsStatus" role="status"></p>
       <div id="recordsContainer">
