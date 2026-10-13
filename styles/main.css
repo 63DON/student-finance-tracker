@@ -596,6 +596,59 @@ mark {
   }
 }
 
+.chart {
+  display: flex;
+  gap: var(--space-2);
+  height: 11rem;
+  margin: var(--space-3) 0;
+}
+
+.chart-column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.chart-track {
+  position: relative;
+  flex: 1 1 auto;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.chart-bar {
+  position: absolute;
+  right: 12%;
+  bottom: 0;
+  left: 12%;
+  background-color: var(--color-accent);
+  border-radius: var(--radius) var(--radius) 0 0;
+  transform-origin: bottom;
+  animation: bar-grow 400ms ease-out;
+}
+
+.chart-value {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.chart-label {
+  color: var(--color-text-muted);
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

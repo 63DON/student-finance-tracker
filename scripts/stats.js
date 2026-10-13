@@ -23,3 +23,23 @@ export function convertAmount(amount, settings) {
   const other = settings.otherCurrencies.find((currency) => currency.code === settings.displayCurrency);
   return other ? amount * other.rate : amount;
 }
+
+export function toIsoDate(date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return date.getFullYear() + "-" + month + "-" + day;
+}
+
+export function lastSevenDays(records, today = new Date()) {
+  const days = [];
+  for (let offset = 6; offset >= 0; offset -= 1) {
+    const day = new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset);
+    const date = toIsoDate(day);
+    days.push({
+      date,
+      label: day.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }),
+      total: totalSpent(records.filter((record) => record.date === date))
+    });
+  }
+  return days;
+}
