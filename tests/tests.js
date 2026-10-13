@@ -153,4 +153,16 @@ group("Filtering and sorting", () => {
   check("leaves the original array alone", ids(sample), "123");
 });
 
+group("Highlight escaping", () => {
+  check("wraps a match in mark", highlight("iced coffee", compileRegex("coffee")), "iced <mark>coffee</mark>");
+  check("wraps every match", highlight("tea and tea", compileRegex("tea")), "<mark>tea</mark> and <mark>tea</mark>");
+  check("escapes text when there is no pattern", highlight("<b>bold</b>", null), "&lt;b&gt;bold&lt;/b&gt;");
+  check("escapes text around a match", highlight("<b>bold</b>", compileRegex("bold")), "&lt;b&gt;<mark>bold</mark>&lt;/b&gt;");
+  check("escapes text inside a match", highlight("a<b", compileRegex("a<b")), "<mark>a&lt;b</mark>");
+  check("escapes ampersands and quotes", escapeHtml("Tom & \"Jerry's\""), "Tom &amp; &quot;Jerry&#39;s&quot;");
+  check("survives a pattern that matches nothing at all", highlight("abc", compileRegex("x*")), "abc");
+  check("skips zero-length matches but keeps real ones", highlight("aab", compileRegex("a*")), "<mark>aa</mark>b");
+  check("handles a lookahead that never consumes text", highlight("abc", compileRegex("(?=b)")), "abc");
+});
+
 renderResults();
