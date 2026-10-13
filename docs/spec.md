@@ -100,3 +100,83 @@ One localStorage key holds a single object:
 ```
 
 `nextId` only ever goes up, which is how ids stay unique after deletes. If the stored text cannot be parsed or has the wrong shape, the app starts from the sample data and tells the user.
+
+## Accessibility plan
+
+### Landmarks
+
+- `header` with the site title, the main navigation and the theme toggle
+- `nav` labelled "Sections"
+- `main` holding five labelled `section` elements
+- `footer` with contact links
+
+### Heading outline
+
+- h1 Student Finance Tracker
+  - h2 About
+  - h2 Dashboard
+    - h3 Total records, Total spent, Top category, Budget
+    - h3 Last 7 days
+  - h2 Records
+    - h3 one per record card on small screens
+  - h2 Add a record
+  - h2 Settings
+    - h3 Currencies
+    - h3 Budget cap
+    - h3 Categories
+    - h3 Your data
+
+### Focus order
+
+1. Skip to main content link
+2. Navigation links, then the theme toggle
+3. About links
+4. Records: search box, ignore case toggle, sort control, pattern hints, then each record's Edit and Delete
+5. Add a record form: description, amount, category, date, Add record, Clear form
+6. Settings: currencies, budget cap, categories, data buttons
+7. Footer links
+
+Where focus goes after an action:
+
+- After adding a record: back to the description field, ready for the next one
+- After saving or cancelling an edit: the Edit button of that record
+- After deleting: the Edit button of the next record, or the Records heading if none are left
+- After cancelling a dialog: the button that opened it
+- After an import: the Records heading
+
+### Live regions
+
+| Region | Type | Used for |
+| --- | --- | --- |
+| Form summary | role="status" | Result of submitting the add form |
+| Search result count | aria-live="polite" | "Showing 3 of 14 records" and the invalid pattern note |
+| Records status | role="status" | Saved, deleted, imported |
+| Budget, under the cap | aria-live="polite" | Remaining amount |
+| Budget, over the cap | aria-live="assertive" | Overage |
+| Import error | role="alert" | Why a file was rejected |
+| Settings status lines | role="status" | Settings saved, export done |
+
+### Contrast targets
+
+- Body text and labels: at least 4.5:1 against their background, in both themes
+- Borders of inputs and buttons, and focus rings: at least 3:1
+- Highlighted search matches keep 4.5:1 for the text inside the mark
+- Colour is never the only signal: errors have text, sort direction has an arrow and aria-sort
+
+### Motion
+
+New rows fade in and bars grow. Both are switched off when the user asks for reduced motion.
+
+### Keyboard map
+
+| Key | Where | What it does |
+| --- | --- | --- |
+| Tab / Shift+Tab | Everywhere | Move forwards and backwards |
+| Enter | Skip link, nav links | Jump to that section |
+| Enter or Space | Buttons, sort headers, pattern hints | Activate |
+| Enter | Add form | Submit |
+| Enter | A record being edited | Save the edit |
+| Escape | A record being edited | Cancel the edit |
+| Escape | Dialog | Close without doing anything |
+| Space | Ignore case checkbox | Toggle |
+| Arrow keys | Selects | Change the option |
