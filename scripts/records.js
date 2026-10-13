@@ -1,7 +1,14 @@
-import { getState, subscribe, deleteRecord } from "./state.js";
+import { getState, subscribe, deleteRecord, updateRecord } from "./state.js";
 import { createElement, formatAmount, setText } from "./ui.js";
 import { compileRegex, filterRecords, sortRecords, highlight } from "./search.js";
 import { openDialog } from "./dialog.js";
+import {
+  validateDescription,
+  validateAmount,
+  validateCategory,
+  validateDate,
+  collapseSpaces
+} from "./validators.js";
 
 const container = document.querySelector("#recordsContainer");
 const searchInput = document.querySelector("#searchInput");
@@ -25,7 +32,8 @@ const view = {
   sortDirection: "descending",
   query: "",
   ignoreCase: true,
-  newRecordId: null
+  newRecordId: null,
+  editingId: null
 };
 
 let activeRegex = null;
@@ -66,6 +74,7 @@ function buildActionButton(record, action, label, extraClass) {
 
 function buildActions(record) {
   return [
+    buildActionButton(record, "edit", "Edit", ""),
     buildActionButton(record, "delete", "Delete", "button-danger")
   ];
 }
@@ -101,7 +110,67 @@ function buildHeaderCell(column) {
   return createElement("th", { scope: "col", "aria-sort": sortState }, [button]);
 }
 
+function buildEditInput(name, label, value, errorId) {
+  return createElement("input", {
+    type: "text",
+    name,
+    value,
+    autocomplete: "off",
+    "aria-label": label,
+    "aria-describedby": errorId
+  });
+}
+
+function buildEditControls(record) {
+  const { categories, baseCurrency } = getState().settings;
+  const options = categories.includes(record.category) ? categories : [record.category, ...categories];
+  const errorId = "editError-" + record.id;
+  return {
+    description: buildEditInput("description", "Description", record.description, errorId),
+    amount: buildEditInput("amount", "Amount in " + baseCurrency, String(record.amount), errorId),
+    date: buildEditInput("date", "Date as year, month, day", record.date, errorId),
+    category: createElement("select", { name: "category", "aria-label": "Category", "aria-describedby": errorId },
+      options.map((name) => createElement("option", { text: name, selected: name === record.category }))),
+    error: createElement("p", { className: "field-error", id: errorId }),
+    buttons: [
+      createElement("button", { type: "button", className: "button button-small button-primary", "data-action": "save", text: "Save" }),
+      createElement("button", { type: "button", className: "button button-small", "data-action": "cancel", text: "Cancel" })
+    ]
+  };
+}
+
+function buildEditRow(record) {
+  const controls = buildEditControls(record);
+  return createElement("tr", { "data-id": record.id, "data-editing": true, className: "record-row is-editing" }, [
+    createElement("td", {}, [controls.date]),
+    createElement("td", {}, [controls.description]),
+    createElement("td", {}, [controls.category]),
+    createElement("td", {}, [controls.amount]),
+    createElement("td", {}, [createElement("div", { className: "row-actions" }, controls.buttons), controls.error])
+  ]);
+}
+
+function buildLabelledControl(label, control) {
+  return createElement("label", { className: "field" }, [createElement("span", { text: label }), control]);
+}
+
+function buildEditCard(record) {
+  const controls = buildEditControls(record);
+  return createElement("li", { "data-id": record.id, "data-editing": true, className: "record-card is-editing" }, [
+    createElement("h3", { className: "record-title", text: "Editing " + record.description }),
+    buildLabelledControl("Description", controls.description),
+    buildLabelledControl("Amount", controls.amount),
+    buildLabelledControl("Category", controls.category),
+    buildLabelledControl("Date", controls.date),
+    controls.error,
+    createElement("div", { className: "button-row" }, controls.buttons)
+  ]);
+}
+
 function buildRow(record) {
+  if (record.id === view.editingId) {
+    return buildEditRow(record);
+  }
   const texts = displayTexts(record);
   return createElement("tr", entryAttributes(record, "record-row"), [
     createElement("td", cellAttributes(texts.date)),
@@ -131,6 +200,9 @@ function buildDetail(label, content) {
 }
 
 function buildCard(record) {
+  if (record.id === view.editingId) {
+    return buildEditCard(record);
+  }
   const texts = displayTexts(record);
   return createElement("li", entryAttributes(record, "record-card"), [
     createElement("h3", { className: "record-title", ...cellAttributes(texts.description) }),
@@ -261,8 +333,65 @@ async function confirmDelete(id) {
   }
   const nextId = neighbourId(id);
   deleteRecord(id);
-  moveFocus(nextId ? "delete-" + nextId : null);
+  moveFocus(nextId ? "edit-" + nextId : null);
   setText(recordsStatus, "Deleted \"" + record.description + "\".");
+}
+
+const editRules = {
+  description: validateDescription,
+  amount: validateAmount,
+  category: validateCategory,
+  date: validateDate
+};
+
+function startEdit(id) {
+  view.editingId = id;
+  render();
+  container.querySelector("[data-editing] [name=\"description\"]").focus();
+  setText(recordsStatus, "Editing. Use Save or Cancel when you are done.");
+}
+
+function cancelEdit(id) {
+  view.editingId = null;
+  render();
+  moveFocus("edit-" + id);
+  setText(recordsStatus, "Edit cancelled. Nothing was changed.");
+}
+
+function checkEditControl(control) {
+  const result = editRules[control.name](control.value);
+  control.setAttribute("aria-invalid", String(!result.valid));
+  return result;
+}
+
+function saveEdit(entry) {
+  const controls = Object.keys(editRules).map((name) => entry.querySelector("[name=\"" + name + "\"]"));
+  const failures = controls
+    .map((control) => ({ control, result: checkEditControl(control) }))
+    .filter((failure) => !failure.result.valid);
+  if (failures.length > 0) {
+    entry.querySelector(".field-error").textContent = failures.map((failure) => failure.result.message).join(" ");
+    failures[0].control.focus();
+    return;
+  }
+  const [description, amount, category, date] = controls.map((control) => control.value);
+  view.editingId = null;
+  const record = updateRecord(entry.dataset.id, {
+    description: collapseSpaces(description),
+    amount: Number(amount),
+    category,
+    date
+  });
+  moveFocus("edit-" + record.id);
+  setText(recordsStatus, "Saved changes to \"" + record.description + "\".");
+}
+
+function handleEditInput(event) {
+  const entry = event.target.closest("[data-editing]");
+  if (!entry) {
+    return;
+  }
+  entry.querySelector(".field-error").textContent = checkEditControl(event.target).message;
 }
 
 function handleActionClick(event) {
@@ -272,6 +401,15 @@ function handleActionClick(event) {
   }
   const entry = button.closest("[data-id]");
   const action = button.dataset.action;
+  if (action === "edit") {
+    startEdit(entry.dataset.id);
+  }
+  if (action === "save") {
+    saveEdit(entry);
+  }
+  if (action === "cancel") {
+    cancelEdit(entry.dataset.id);
+  }
   if (action === "delete") {
     confirmDelete(entry.dataset.id);
   }
@@ -286,6 +424,7 @@ export function initRecords() {
   wideScreen.addEventListener("change", render);
   container.addEventListener("click", handleSortClick);
   container.addEventListener("click", handleActionClick);
+  container.addEventListener("input", handleEditInput);
   sortSelect.addEventListener("change", handleSortSelect);
   searchInput.addEventListener("input", handleSearchInput);
   document.querySelector("#hintList").addEventListener("click", handleHintClick);

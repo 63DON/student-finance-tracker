@@ -92,3 +92,10 @@ export function deleteRecord(id) {
   state.records = state.records.filter((record) => record.id !== id);
   notify({ type: "delete", id });
 }
+
+export function updateRecord(id, changes) {
+  const record = state.records.find((entry) => entry.id === id);
+  Object.assign(record, changes, { updatedAt: new Date().toISOString() });
+  notify({ type: "update", id });
+  return record;
+}

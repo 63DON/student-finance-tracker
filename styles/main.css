@@ -693,6 +693,19 @@ mark {
   margin-top: var(--space-3);
 }
 
+.is-editing {
+  background-color: var(--color-surface-alt);
+}
+
+.records-table .is-editing input,
+.records-table .is-editing select {
+  min-width: 6rem;
+}
+
+.is-editing .field-error {
+  margin-top: var(--space-2);
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);
