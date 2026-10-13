@@ -10,6 +10,7 @@ import {
   findDuplicateWord
 } from "../scripts/validators.js";
 import { compileRegex, filterRecords, sortRecords, escapeHtml, highlight } from "../scripts/search.js";
+import { totalSpent, topCategory, lastSevenDays, toIsoDate, capStatus, convertAmount } from "../scripts/stats.js";
 
 const results = [];
 let currentGroup = "";
@@ -163,6 +164,34 @@ group("Highlight escaping", () => {
   check("survives a pattern that matches nothing at all", highlight("abc", compileRegex("x*")), "abc");
   check("skips zero-length matches but keeps real ones", highlight("aab", compileRegex("a*")), "<mark>aa</mark>b");
   check("handles a lookahead that never consumes text", highlight("abc", compileRegex("(?=b)")), "abc");
+});
+
+group("Stats", () => {
+  const sample = [
+    { amount: 10, category: "Food", date: "2025-03-10" },
+    { amount: 2.5, category: "Food", date: "2025-03-09" },
+    { amount: 12, category: "Books", date: "2025-03-04" },
+    { amount: 99, category: "Fees", date: "2025-03-03" }
+  ];
+  const week = lastSevenDays(sample, new Date(2025, 2, 10));
+  const rates = { baseCurrency: "USD", displayCurrency: "RWF", otherCurrencies: [{ code: "RWF", rate: 1450 }] };
+  check("adds up every amount", totalSpent(sample), 123.5);
+  check("total of nothing is zero", totalSpent([]), 0);
+  check("finds the category with the highest spend", topCategory(sample).name, "Fees");
+  check("has no top category without records", topCategory([]), null);
+  check("covers seven days", week.length, 7);
+  check("starts six days back", week[0].date, "2025-03-04");
+  check("ends on today", week[6].date, "2025-03-10");
+  check("sums each day", week[6].total + week[5].total + week[0].total, 24.5);
+  check("leaves out older records", week.some((day) => day.total === 99), false);
+  check("formats a local date", toIsoDate(new Date(2024, 1, 29)), "2024-02-29");
+  check("no cap means no status", capStatus(50, null).state, "none");
+  check("under the cap", capStatus(50, 80).difference, 30);
+  check("exactly on the cap still counts as under", capStatus(80, 80).state, "under");
+  check("over the cap", capStatus(90.5, 80).state, "over");
+  check("overage is a positive number", capStatus(90.5, 80).difference, 10.5);
+  check("converts to the display currency", convertAmount(2, rates), 2900);
+  check("leaves the base currency alone", convertAmount(2, { ...rates, displayCurrency: "USD" }), 2);
 });
 
 renderResults();
