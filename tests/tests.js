@@ -11,6 +11,7 @@ import {
 } from "../scripts/validators.js";
 import { compileRegex, filterRecords, sortRecords, escapeHtml, highlight } from "../scripts/search.js";
 import { totalSpent, topCategory, lastSevenDays, toIsoDate, capStatus, convertAmount } from "../scripts/stats.js";
+import { validateRecords, parseImport, summariseErrors, recordsToJson } from "../scripts/importExport.js";
 
 const results = [];
 let currentGroup = "";
@@ -192,6 +193,46 @@ group("Stats", () => {
   check("overage is a positive number", capStatus(90.5, 80).difference, 10.5);
   check("converts to the display currency", convertAmount(2, rates), 2900);
   check("leaves the base currency alone", convertAmount(2, { ...rates, displayCurrency: "USD" }), 2);
+});
+
+group("Import validation", () => {
+  const good = {
+    id: "txn_0001",
+    description: "Lunch",
+    amount: 4.5,
+    category: "Food",
+    date: "2025-09-29",
+    createdAt: "2025-09-29T12:15:00.000Z",
+    updatedAt: "2025-09-29T12:15:00.000Z"
+  };
+  const withChange = (changes) => [{ ...good, ...changes }];
+  const withoutField = (field) => {
+    const copy = { ...good };
+    delete copy[field];
+    return [copy];
+  };
+  check("accepts a well formed list", validateRecords([good]).valid, true);
+  check("accepts an amount of zero", validateRecords(withChange({ amount: 0 })).valid, true);
+  check("drops fields it does not know", "extra" in validateRecords(withChange({ extra: 1 })).records[0], false);
+  check("rejects something that is not a list", validateRecords({ records: [good] }).valid, false);
+  check("rejects a list of non objects", validateRecords(["Lunch"]).valid, false);
+  check("rejects a missing field", validateRecords(withoutField("category")).valid, false);
+  check("rejects a missing timestamp", validateRecords(withoutField("updatedAt")).valid, false);
+  check("rejects an amount given as text", validateRecords(withChange({ amount: "4.50" })).valid, false);
+  check("rejects a negative amount", validateRecords(withChange({ amount: -1 })).valid, false);
+  check("rejects three decimals", validateRecords(withChange({ amount: 1.234 })).valid, false);
+  check("rejects a padded description", validateRecords(withChange({ description: " Lunch" })).valid, false);
+  check("rejects an impossible date", validateRecords(withChange({ date: "2025-02-30" })).valid, false);
+  check("rejects a category with digits", validateRecords(withChange({ category: "Food2" })).valid, false);
+  check("rejects a badly shaped id", validateRecords(withChange({ id: "7" })).valid, false);
+  check("rejects a timestamp that is only a date", validateRecords(withChange({ createdAt: "2025-09-29" })).valid, false);
+  check("rejects repeated ids", validateRecords([good, good]).valid, false);
+  check("says which record is wrong", validateRecords([good, { ...good, id: "txn_0002", amount: -1 }]).errors[0].startsWith("Record 2 "), true);
+  check("rejects text that is not JSON", parseImport("{oops").errors[0], "The file is not valid JSON.");
+  check("rejects an empty list", parseImport("[]").valid, false);
+  check("parses a good file", parseImport(JSON.stringify([good])).records.length, 1);
+  check("round trips an export", parseImport(recordsToJson([good])).valid, true);
+  check("shortens long error lists", summariseErrors(["a", "b", "c", "d", "e"]), "a b c And 2 more.");
 });
 
 renderResults();
