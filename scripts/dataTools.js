@@ -1,8 +1,9 @@
 import { getState, replaceRecords, mergeRecords, clearAll } from "./state.js";
-import { recordsToJson, downloadFile, parseImport, summariseErrors } from "./importExport.js";
+import { recordsToJson, recordsToCsv, downloadFile, parseImport, summariseErrors } from "./importExport.js";
 import { openDialog } from "./dialog.js";
 
 const exportJsonButton = document.querySelector("#exportJsonButton");
+const exportCsvButton = document.querySelector("#exportCsvButton");
 const dataStatus = document.querySelector("#dataStatus");
 const importFileInput = document.querySelector("#importFileInput");
 const importError = document.querySelector("#importError");
@@ -22,6 +23,16 @@ function exportJson() {
   }
   downloadFile("student-finance-records.json", recordsToJson(records), "application/json");
   dataStatus.textContent = "Exported " + describeCount(records.length) + " to student-finance-records.json.";
+}
+
+function exportCsv() {
+  const { records } = getState();
+  if (records.length === 0) {
+    dataStatus.textContent = "There is nothing to export yet.";
+    return;
+  }
+  downloadFile("student-finance-records.csv", recordsToCsv(records), "text/csv");
+  dataStatus.textContent = "Exported " + describeCount(records.length) + " to student-finance-records.csv.";
 }
 
 function rejectImport(message) {
@@ -101,6 +112,7 @@ async function clearEverything() {
 
 export function initDataTools() {
   exportJsonButton.addEventListener("click", exportJson);
+  exportCsvButton.addEventListener("click", exportCsv);
   importFileInput.addEventListener("change", importJson);
   clearDataButton.addEventListener("click", clearEverything);
 }

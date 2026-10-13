@@ -11,7 +11,7 @@ import {
 } from "../scripts/validators.js";
 import { compileRegex, filterRecords, sortRecords, escapeHtml, highlight } from "../scripts/search.js";
 import { totalSpent, topCategory, lastSevenDays, toIsoDate, capStatus, convertAmount } from "../scripts/stats.js";
-import { validateRecords, parseImport, summariseErrors, recordsToJson } from "../scripts/importExport.js";
+import { validateRecords, parseImport, summariseErrors, recordsToJson, recordsToCsv } from "../scripts/importExport.js";
 
 const results = [];
 let currentGroup = "";
@@ -233,6 +233,25 @@ group("Import validation", () => {
   check("parses a good file", parseImport(JSON.stringify([good])).records.length, 1);
   check("round trips an export", parseImport(recordsToJson([good])).valid, true);
   check("shortens long error lists", summariseErrors(["a", "b", "c", "d", "e"]), "a b c And 2 more.");
+});
+
+group("CSV export", () => {
+  const row = (description) => recordsToCsv([{
+    id: "txn_0001",
+    description,
+    amount: 4.5,
+    category: "Food",
+    date: "2025-09-29",
+    createdAt: "2025-09-29T12:15:00.000Z",
+    updatedAt: "2025-09-29T12:15:00.000Z"
+  }]).split("\r\n")[1];
+  const tail = ",4.5,Food,2025-09-29,2025-09-29T12:15:00.000Z,2025-09-29T12:15:00.000Z";
+  check("starts with a header row", recordsToCsv([]), "id,description,amount,category,date,createdAt,updatedAt\r\n");
+  check("leaves plain text alone", row("Lunch"), "txn_0001,Lunch" + tail);
+  check("quotes a value with a comma", row("Rice, beans"), "txn_0001,\"Rice, beans\"" + tail);
+  check("doubles quotes inside a value", row("Gym \"student\" pass"), "txn_0001,\"Gym \"\"student\"\" pass\"" + tail);
+  check("quotes a value with a line break", recordsToCsv([{ id: "a", description: "two\nlines" }]).includes("a,\"two\nlines\","), true);
+  check("keeps apostrophes and ampersands as they are", row("Tom's pens & ink"), "txn_0001,Tom's pens & ink" + tail);
 });
 
 renderResults();

@@ -104,6 +104,20 @@ export function summariseErrors(errors, limit = 3) {
   return hiddenCount > 0 ? shown + " And " + hiddenCount + " more." : shown;
 }
 
+function escapeCsvValue(value) {
+  const text = String(value);
+  if (/[",\r\n]/.test(text)) {
+    return "\"" + text.replace(/"/g, "\"\"") + "\"";
+  }
+  return text;
+}
+
+export function recordsToCsv(records) {
+  const fields = Object.keys(fieldTypes);
+  const rows = records.map((record) => fields.map((field) => escapeCsvValue(record[field])).join(","));
+  return [fields.join(","), ...rows].join("\r\n") + "\r\n";
+}
+
 export function recordsToJson(records) {
   return JSON.stringify(records, null, 2);
 }
