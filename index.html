@@ -65,6 +65,18 @@
     </section>
     <section id="records" class="section" aria-labelledby="recordsHeading">
       <h2 id="recordsHeading" tabindex="-1">Records</h2>
+      <div class="toolbar">
+        <div class="field search-field">
+          <label for="searchInput">Search with a regular expression</label>
+          <input id="searchInput" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="searchError">
+          <p class="field-error" id="searchError"></p>
+        </div>
+      </div>
+      <p class="status-line" id="searchStatus" aria-live="polite"></p>
+      <p class="status-line" id="recordsStatus" role="status"></p>
+      <div id="recordsContainer">
+        <p class="empty-state">No records yet. Add your first one with the form below.</p>
+      </div>
     </section>
     <section id="add" class="section" aria-labelledby="addHeading">
       <h2 id="addHeading">Add a record</h2>
