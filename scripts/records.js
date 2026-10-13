@@ -1,6 +1,6 @@
 import { getState, subscribe } from "./state.js";
 import { createElement, formatAmount, setText } from "./ui.js";
-import { compileRegex, filterRecords, sortRecords } from "./search.js";
+import { compileRegex, filterRecords, sortRecords, highlight } from "./search.js";
 
 const container = document.querySelector("#recordsContainer");
 const searchInput = document.querySelector("#searchInput");
@@ -36,7 +36,7 @@ function displayTexts(record) {
 }
 
 function cellAttributes(text) {
-  return { text };
+  return { html: highlight(text, activeRegex) };
 }
 
 function entryAttributes(record, className) {

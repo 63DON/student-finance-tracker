@@ -31,3 +31,37 @@ export function filterRecords(records, regex, toTexts = recordTexts) {
   }
   return records.filter((record) => toTexts(record).some((text) => regex.test(text)));
 }
+
+const htmlEscapes = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  "\"": "&quot;",
+  "'": "&#39;"
+};
+
+export function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, (character) => htmlEscapes[character]);
+}
+
+export function highlight(text, regex) {
+  if (!regex) {
+    return escapeHtml(text);
+  }
+  const flags = regex.flags.includes("g") ? regex.flags : regex.flags + "g";
+  const globalRegex = new RegExp(regex.source, flags);
+  let result = "";
+  let cursor = 0;
+  let match = globalRegex.exec(text);
+  while (match !== null) {
+    if (match[0] === "") {
+      globalRegex.lastIndex += 1;
+    } else {
+      result += escapeHtml(text.slice(cursor, match.index));
+      result += "<mark>" + escapeHtml(match[0]) + "</mark>";
+      cursor = match.index + match[0].length;
+    }
+    match = globalRegex.exec(text);
+  }
+  return result + escapeHtml(text.slice(cursor));
+}

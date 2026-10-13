@@ -556,6 +556,13 @@ th[aria-sort="descending"] .sort-button {
   accent-color: var(--color-accent);
 }
 
+mark {
+  padding: 0 0.1em;
+  color: var(--color-mark-text);
+  background-color: var(--color-mark);
+  border-radius: 2px;
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);
