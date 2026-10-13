@@ -2,7 +2,10 @@ export const patterns = {
   description: /^\S(?:.*\S)?$/,
   amount: /^(0|[1-9]\d*)(\.\d{1,2})?$/,
   date: /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
-  category: /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/
+  category: /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/,
+  duplicateWord: /\b(\w+)\s+\1\b/i,
+  exchangeRate: /^(?=.*[1-9])\d+(\.\d{1,4})?$/,
+  currencyCode: /^[A-Z]{3}$/
 };
 
 function pass() {
@@ -64,6 +67,38 @@ export function validateCategory(value) {
   }
   if (!patterns.category.test(value)) {
     return fail("Use letters only, with single spaces or hyphens between words.");
+  }
+  return pass();
+}
+
+export function findDuplicateWord(value) {
+  const match = value.match(patterns.duplicateWord);
+  return match ? match[1] : null;
+}
+
+export function validateExchangeRate(value) {
+  if (value === "") {
+    return fail("Enter a rate.");
+  }
+  if (!patterns.exchangeRate.test(value)) {
+    return fail("Use a number above zero with up to four decimals.");
+  }
+  return pass();
+}
+
+export function validateBudgetCap(value) {
+  if (value === "") {
+    return pass();
+  }
+  if (!patterns.amount.test(value)) {
+    return fail("Use digits with up to two decimals, or leave it empty.");
+  }
+  return pass();
+}
+
+export function validateCurrencyCode(value) {
+  if (!patterns.currencyCode.test(value)) {
+    return fail("Use three capital letters, like USD.");
   }
   return pass();
 }
