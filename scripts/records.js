@@ -1,11 +1,14 @@
-import { getState, subscribe } from "./state.js";
+import { getState, subscribe, deleteRecord } from "./state.js";
 import { createElement, formatAmount, setText } from "./ui.js";
 import { compileRegex, filterRecords, sortRecords, highlight } from "./search.js";
+import { openDialog } from "./dialog.js";
 
 const container = document.querySelector("#recordsContainer");
 const searchInput = document.querySelector("#searchInput");
 const searchError = document.querySelector("#searchError");
 const searchStatus = document.querySelector("#searchStatus");
+const recordsStatus = document.querySelector("#recordsStatus");
+const recordsHeading = document.querySelector("#recordsHeading");
 const caseToggle = document.querySelector("#caseToggle");
 const wideScreen = window.matchMedia("(min-width: 48em)");
 const sortSelect = document.querySelector("#sortSelect");
@@ -50,6 +53,23 @@ function buildAmount(texts) {
   return [currency + " ", createElement("span", cellAttributes(texts.amount))];
 }
 
+function buildActionButton(record, action, label, extraClass) {
+  return createElement("button", {
+    type: "button",
+    className: "button button-small " + extraClass,
+    "data-action": action,
+    "data-focus-key": action + "-" + record.id,
+    "aria-label": label + " " + record.description,
+    text: label
+  });
+}
+
+function buildActions(record) {
+  return [
+    buildActionButton(record, "delete", "Delete", "button-danger")
+  ];
+}
+
 function nextDirection(key) {
   if (view.sortKey !== key) {
     return "ascending";
@@ -87,14 +107,18 @@ function buildRow(record) {
     createElement("td", cellAttributes(texts.date)),
     createElement("th", { scope: "row", ...cellAttributes(texts.description) }),
     createElement("td", cellAttributes(texts.category)),
-    createElement("td", { className: "amount-cell" }, buildAmount(texts))
+    createElement("td", { className: "amount-cell" }, buildAmount(texts)),
+    createElement("td", {}, [createElement("div", { className: "row-actions" }, buildActions(record))])
   ]);
 }
 
 function buildTable(records) {
   return createElement("table", { className: "records-table" }, [
     createElement("caption", { text: "Your transactions" }),
-    createElement("thead", {}, [createElement("tr", {}, columns.map(buildHeaderCell))]),
+    createElement("thead", {}, [createElement("tr", {}, [
+      ...columns.map(buildHeaderCell),
+      createElement("th", { scope: "col", text: "Actions" })
+    ])]),
     createElement("tbody", {}, records.map(buildRow))
   ]);
 }
@@ -114,7 +138,8 @@ function buildCard(record) {
       buildDetail("Date", [createElement("span", cellAttributes(texts.date))]),
       buildDetail("Category", [createElement("span", cellAttributes(texts.category))]),
       buildDetail("Amount", buildAmount(texts))
-    ])
+    ]),
+    createElement("div", { className: "button-row" }, buildActions(record))
   ]);
 }
 
@@ -208,6 +233,50 @@ function handleHintClick(event) {
   searchInput.focus();
 }
 
+function moveFocus(focusKey) {
+  const target = focusKey
+    ? container.querySelector("[data-focus-key=\"" + focusKey + "\"]")
+    : null;
+  (target || recordsHeading).focus();
+}
+
+function neighbourId(id) {
+  const ids = Array.from(container.querySelectorAll("[data-id]")).map((entry) => entry.dataset.id);
+  const index = ids.indexOf(id);
+  return ids[index + 1] || ids[index - 1] || null;
+}
+
+async function confirmDelete(id) {
+  const record = getState().records.find((entry) => entry.id === id);
+  const answer = await openDialog({
+    title: "Delete this record?",
+    message: "\"" + record.description + "\" will be removed for good.",
+    choices: [
+      { label: "Keep it", value: "" },
+      { label: "Delete", value: "delete", className: "button button-danger" }
+    ]
+  });
+  if (answer !== "delete") {
+    return;
+  }
+  const nextId = neighbourId(id);
+  deleteRecord(id);
+  moveFocus(nextId ? "delete-" + nextId : null);
+  setText(recordsStatus, "Deleted \"" + record.description + "\".");
+}
+
+function handleActionClick(event) {
+  const button = event.target.closest("[data-action]");
+  if (!button) {
+    return;
+  }
+  const entry = button.closest("[data-id]");
+  const action = button.dataset.action;
+  if (action === "delete") {
+    confirmDelete(entry.dataset.id);
+  }
+}
+
 export function initRecords() {
   subscribe((state, change) => {
     view.newRecordId = change.type === "add" ? change.id : null;
@@ -216,6 +285,7 @@ export function initRecords() {
   });
   wideScreen.addEventListener("change", render);
   container.addEventListener("click", handleSortClick);
+  container.addEventListener("click", handleActionClick);
   sortSelect.addEventListener("change", handleSortSelect);
   searchInput.addEventListener("input", handleSearchInput);
   document.querySelector("#hintList").addEventListener("click", handleHintClick);

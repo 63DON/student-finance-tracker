@@ -87,3 +87,8 @@ export function replaceRecords(records) {
   adoptRecords(records);
   notify({ type: "replace" });
 }
+
+export function deleteRecord(id) {
+  state.records = state.records.filter((record) => record.id !== id);
+  notify({ type: "delete", id });
+}
