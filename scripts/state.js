@@ -99,3 +99,16 @@ export function updateRecord(id, changes) {
   notify({ type: "update", id });
   return record;
 }
+
+export function mergeRecords(records) {
+  for (const incoming of records) {
+    const index = state.records.findIndex((record) => record.id === incoming.id);
+    if (index === -1) {
+      state.records.push({ ...incoming });
+    } else {
+      state.records[index] = { ...incoming };
+    }
+  }
+  adoptRecords(records);
+  notify({ type: "merge" });
+}
