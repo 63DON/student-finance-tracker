@@ -137,3 +137,9 @@ export function removeCategory(name) {
   state.settings.categories = state.settings.categories.filter((existing) => existing !== name);
   notify({ type: "categories" });
 }
+
+export function clearAll() {
+  state.records = [];
+  state.settings = createDefaultSettings();
+  notify({ type: "clear" });
+}

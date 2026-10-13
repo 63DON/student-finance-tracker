@@ -1,4 +1,4 @@
-import { getState, replaceRecords, mergeRecords } from "./state.js";
+import { getState, replaceRecords, mergeRecords, clearAll } from "./state.js";
 import { recordsToJson, downloadFile, parseImport, summariseErrors } from "./importExport.js";
 import { openDialog } from "./dialog.js";
 
@@ -6,6 +6,7 @@ const exportJsonButton = document.querySelector("#exportJsonButton");
 const dataStatus = document.querySelector("#dataStatus");
 const importFileInput = document.querySelector("#importFileInput");
 const importError = document.querySelector("#importError");
+const clearDataButton = document.querySelector("#clearDataButton");
 const recordsStatus = document.querySelector("#recordsStatus");
 const recordsHeading = document.querySelector("#recordsHeading");
 
@@ -80,7 +81,26 @@ async function importJson() {
   recordsHeading.focus();
 }
 
+async function clearEverything() {
+  const answer = await openDialog({
+    title: "Clear all data?",
+    message: "Every record is deleted and the settings go back to their defaults. Export a copy first if you might want it back.",
+    choices: [
+      { label: "Cancel", value: "" },
+      { label: "Clear everything", value: "clear", className: "button button-danger" }
+    ]
+  });
+  if (answer !== "clear") {
+    dataStatus.textContent = "Nothing was cleared.";
+    return;
+  }
+  clearAll();
+  importError.textContent = "";
+  dataStatus.textContent = "All records were deleted and the settings were reset.";
+}
+
 export function initDataTools() {
   exportJsonButton.addEventListener("click", exportJson);
   importFileInput.addEventListener("change", importJson);
+  clearDataButton.addEventListener("click", clearEverything);
 }
