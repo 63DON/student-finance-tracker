@@ -1,8 +1,11 @@
 import { getState, subscribe } from "./state.js";
-import { createElement, formatAmount } from "./ui.js";
-import { sortRecords } from "./search.js";
+import { createElement, formatAmount, setText } from "./ui.js";
+import { compileRegex, filterRecords, sortRecords } from "./search.js";
 
 const container = document.querySelector("#recordsContainer");
+const searchInput = document.querySelector("#searchInput");
+const searchError = document.querySelector("#searchError");
+const searchStatus = document.querySelector("#searchStatus");
 const wideScreen = window.matchMedia("(min-width: 48em)");
 const sortSelect = document.querySelector("#sortSelect");
 
@@ -15,8 +18,12 @@ const columns = [
 
 const view = {
   sortKey: "date",
-  sortDirection: "descending"
+  sortDirection: "descending",
+  query: "",
+  ignoreCase: true
 };
+
+let activeRegex = null;
 
 function displayTexts(record) {
   return {
@@ -118,15 +125,46 @@ function buildEmptyState(message) {
 
 function render() {
   const { records } = getState();
-  const visible = sortRecords(records, view.sortKey, view.sortDirection);
+  activeRegex = compileRegex(view.query, view.ignoreCase ? "i" : "");
+  const patternIsInvalid = view.query !== "" && activeRegex === null;
+  const matching = filterRecords(records, activeRegex, searchTexts);
+  const visible = sortRecords(matching, view.sortKey, view.sortDirection);
+  showSearchFeedback(patternIsInvalid, visible.length, records.length);
   const focusKey = document.activeElement?.dataset.focusKey;
   sortSelect.value = view.sortKey + "-" + view.sortDirection;
   if (records.length === 0) {
     container.replaceChildren(buildEmptyState("No records yet. Add your first one with the form below."));
     return;
   }
+  if (visible.length === 0) {
+    container.replaceChildren(buildEmptyState("No records match that pattern. Try a simpler one or clear the search."));
+    return;
+  }
   container.replaceChildren(wideScreen.matches ? buildTable(visible) : buildCardList(visible));
   restoreFocus(focusKey);
+}
+
+function searchTexts(record) {
+  return Object.values(displayTexts(record));
+}
+
+function showSearchFeedback(patternIsInvalid, shownCount, totalCount) {
+  searchInput.setAttribute("aria-invalid", String(patternIsInvalid));
+  setText(searchError, patternIsInvalid
+    ? "That pattern is not valid. Check for an unclosed bracket or a stray backslash."
+    : "");
+  if (patternIsInvalid) {
+    setText(searchStatus, "Invalid pattern, so all " + totalCount + " records are shown.");
+  } else if (view.query === "") {
+    setText(searchStatus, "");
+  } else {
+    setText(searchStatus, "Showing " + shownCount + " of " + totalCount + " records.");
+  }
+}
+
+function handleSearchInput() {
+  view.query = searchInput.value;
+  render();
 }
 
 function restoreFocus(focusKey) {
@@ -162,5 +200,6 @@ export function initRecords() {
   wideScreen.addEventListener("change", render);
   container.addEventListener("click", handleSortClick);
   sortSelect.addEventListener("change", handleSortSelect);
+  searchInput.addEventListener("input", handleSearchInput);
   render();
 }
