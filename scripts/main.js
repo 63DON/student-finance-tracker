@@ -1,5 +1,6 @@
 import { initForm } from "./form.js";
 import { initRecords } from "./records.js";
+import { initDashboard } from "./dashboard.js";
 
 const navLinks = Array.from(document.querySelectorAll(".nav-list a"));
 const sections = navLinks.map((link) => document.querySelector(link.hash));
@@ -51,3 +52,4 @@ stopFormsFromReloadingThePage();
 initNavigation();
 initForm();
 initRecords();
+initDashboard();

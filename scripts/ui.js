@@ -1,3 +1,5 @@
+import { convertAmount } from "./stats.js";
+
 export function showFieldResult(input, errorElement, result) {
   errorElement.textContent = result.message;
   input.setAttribute("aria-invalid", String(!result.valid));
@@ -37,4 +39,8 @@ export function setText(element, text) {
 export function formatAmount(amount) {
   const rounded = Math.round(amount * 100) / 100;
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+}
+
+export function formatMoney(amount, settings) {
+  return settings.displayCurrency + " " + formatAmount(convertAmount(amount, settings));
 }
