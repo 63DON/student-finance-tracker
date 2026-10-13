@@ -6,7 +6,7 @@ import {
   findDuplicateWord,
   collapseSpaces
 } from "./validators.js";
-import { showFieldResult, clearFieldResult } from "./ui.js";
+import { showFieldResult, clearFieldResult, createElement } from "./ui.js";
 import { addRecord, getState, subscribe } from "./state.js";
 import { toIsoDate } from "./stats.js";
 
@@ -87,8 +87,23 @@ function handleReset(event) {
   form.elements.description.focus();
 }
 
+function renderCategoryOptions() {
+  const { categories } = getState().settings;
+  const select = form.elements.category;
+  const current = Array.from(select.options).map((option) => option.value);
+  if (current.join("|") === categories.join("|")) {
+    return;
+  }
+  const chosen = select.value;
+  select.replaceChildren(...categories.map((name) => createElement("option", { text: name })));
+  if (categories.includes(chosen)) {
+    select.value = chosen;
+  }
+}
+
 function followSettings() {
   amountCurrency.textContent = "(" + getState().settings.baseCurrency + ")";
+  renderCategoryOptions();
 }
 
 export function initForm() {
