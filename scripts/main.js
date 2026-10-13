@@ -1,5 +1,5 @@
 import { loadData, saveData } from "./storage.js";
-import { hydrate, subscribe } from "./state.js";
+import { hydrate, replaceRecords, subscribe } from "./state.js";
 import { initForm } from "./form.js";
 import { initRecords } from "./records.js";
 import { initDashboard } from "./dashboard.js";
@@ -59,12 +59,27 @@ function saveAfterEveryChange(state) {
   }
 }
 
-function loadSavedData() {
+async function fetchSeedRecords() {
+  const response = await fetch("seed.json");
+  if (!response.ok) {
+    throw new Error("The seed file is missing");
+  }
+  return response.json();
+}
+
+async function loadSavedData() {
   const stored = loadData();
   if (stored.status === "ok") {
     hydrate(stored.data);
-  } else if (stored.status === "corrupted") {
-    appNotice.textContent = "Your saved data could not be read, so the tracker started empty.";
+    return;
+  }
+  try {
+    replaceRecords(await fetchSeedRecords());
+    appNotice.textContent = stored.status === "corrupted"
+      ? "Your saved data could not be read, so the tracker started again with sample records."
+      : "Sample records were loaded to get you started. You can clear them in Settings.";
+  } catch {
+    appNotice.textContent = "The sample records could not be loaded. Add your first record below.";
   }
 }
 

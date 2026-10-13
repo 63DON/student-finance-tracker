@@ -72,3 +72,18 @@ export function hydrate(data) {
   state.nextId = Math.max(data.nextId, highestIdNumber(data.records) + 1);
   notify({ type: "load" });
 }
+
+function adoptRecords(records) {
+  state.nextId = Math.max(state.nextId, highestIdNumber(records) + 1);
+  for (const record of records) {
+    if (!state.settings.categories.includes(record.category)) {
+      state.settings.categories.push(record.category);
+    }
+  }
+}
+
+export function replaceRecords(records) {
+  state.records = records.map((record) => ({ ...record }));
+  adoptRecords(records);
+  notify({ type: "replace" });
+}
