@@ -1,3 +1,5 @@
+import { loadData, saveData } from "./storage.js";
+import { hydrate, subscribe } from "./state.js";
 import { initForm } from "./form.js";
 import { initRecords } from "./records.js";
 import { initDashboard } from "./dashboard.js";
@@ -49,9 +51,28 @@ function stopFormsFromReloadingThePage() {
   document.addEventListener("submit", (event) => event.preventDefault());
 }
 
+const appNotice = document.querySelector("#appNotice");
+
+function saveAfterEveryChange(state) {
+  if (!saveData(state)) {
+    appNotice.textContent = "Your changes could not be saved in this browser. Export a JSON copy to keep them.";
+  }
+}
+
+function loadSavedData() {
+  const stored = loadData();
+  if (stored.status === "ok") {
+    hydrate(stored.data);
+  } else if (stored.status === "corrupted") {
+    appNotice.textContent = "Your saved data could not be read, so the tracker started empty.";
+  }
+}
+
 stopFormsFromReloadingThePage();
 initNavigation();
 initForm();
 initRecords();
 initDashboard();
 initSettings();
+subscribe(saveAfterEveryChange);
+loadSavedData();

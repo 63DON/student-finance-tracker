@@ -61,3 +61,14 @@ export function updateSettings(changes) {
   Object.assign(state.settings, changes);
   notify({ type: "settings" });
 }
+
+function highestIdNumber(records) {
+  return records.reduce((highest, record) => Math.max(highest, Number(record.id.slice(4))), 0);
+}
+
+export function hydrate(data) {
+  state.records = data.records;
+  state.settings = { ...createDefaultSettings(), ...data.settings };
+  state.nextId = Math.max(data.nextId, highestIdNumber(data.records) + 1);
+  notify({ type: "load" });
+}

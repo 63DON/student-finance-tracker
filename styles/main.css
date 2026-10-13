@@ -658,6 +658,10 @@ mark {
   color: var(--color-danger);
 }
 
+.notice {
+  margin: 0;
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

@@ -1,4 +1,4 @@
-import { getState, updateSettings } from "./state.js";
+import { getState, subscribe, updateSettings } from "./state.js";
 import { validateBudgetCap } from "./validators.js";
 import { showFieldResult } from "./ui.js";
 
@@ -31,8 +31,15 @@ function fillBudgetInput() {
   budgetCapInput.value = budgetCap === null ? "" : String(budgetCap);
 }
 
+function handleStateChange(state, change) {
+  if (change.type === "load" || change.type === "clear") {
+    fillBudgetInput();
+  }
+}
+
 export function initSettings() {
   budgetCapInput.addEventListener("input", validateBudgetInput);
   budgetForm.addEventListener("submit", saveBudgetCap);
-  fillBudgetInput();
+  subscribe(handleStateChange);
+  handleStateChange(getState(), { type: "load" });
 }
