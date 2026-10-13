@@ -4,6 +4,7 @@ import { sortRecords } from "./search.js";
 
 const container = document.querySelector("#recordsContainer");
 const wideScreen = window.matchMedia("(min-width: 48em)");
+const sortSelect = document.querySelector("#sortSelect");
 
 const columns = [
   { key: "date", label: "Date", sortable: true },
@@ -119,6 +120,7 @@ function render() {
   const { records } = getState();
   const visible = sortRecords(records, view.sortKey, view.sortDirection);
   const focusKey = document.activeElement?.dataset.focusKey;
+  sortSelect.value = view.sortKey + "-" + view.sortDirection;
   if (records.length === 0) {
     container.replaceChildren(buildEmptyState("No records yet. Add your first one with the form below."));
     return;
@@ -148,9 +150,17 @@ function handleSortClick(event) {
   render();
 }
 
+function handleSortSelect() {
+  const [key, direction] = sortSelect.value.split("-");
+  view.sortKey = key;
+  view.sortDirection = direction;
+  render();
+}
+
 export function initRecords() {
   subscribe(render);
   wideScreen.addEventListener("change", render);
   container.addEventListener("click", handleSortClick);
+  sortSelect.addEventListener("change", handleSortSelect);
   render();
 }

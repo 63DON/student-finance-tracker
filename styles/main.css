@@ -606,6 +606,10 @@ th[aria-sort="descending"] .sort-button {
   .search-field {
     flex: 1 1 20rem;
   }
+
+  .sort-field {
+    display: none;
+  }
 }
 
 @media (min-width: 64em) {
