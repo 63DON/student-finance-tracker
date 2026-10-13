@@ -118,6 +118,7 @@ function buildEditInput(name, label, value, errorId) {
     value,
     autocomplete: "off",
     "aria-label": label,
+    "data-focus-key": "field-" + name,
     "aria-describedby": errorId
   });
 }
@@ -130,7 +131,7 @@ function buildEditControls(record) {
     description: buildEditInput("description", "Description", record.description, errorId),
     amount: buildEditInput("amount", "Amount in " + baseCurrency, String(record.amount), errorId),
     date: buildEditInput("date", "Date as year, month, day", record.date, errorId),
-    category: createElement("select", { name: "category", "aria-label": "Category", "aria-describedby": errorId },
+    category: createElement("select", { name: "category", "aria-label": "Category", "aria-describedby": errorId, "data-focus-key": "field-category" },
       options.map((name) => createElement("option", { text: name, selected: name === record.category }))),
     error: createElement("p", { className: "field-error", id: errorId }),
     buttons: [
@@ -224,6 +225,28 @@ function buildEmptyState(message) {
   return createElement("p", { className: "empty-state", text: message });
 }
 
+function readEditDraft() {
+  const entry = container.querySelector("[data-editing]");
+  if (!entry) {
+    return null;
+  }
+  const values = {};
+  for (const control of entry.querySelectorAll("input, select")) {
+    values[control.name] = control.value;
+  }
+  return { id: entry.dataset.id, values };
+}
+
+function applyEditDraft(draft) {
+  const entry = container.querySelector("[data-editing]");
+  if (!draft || !entry || entry.dataset.id !== draft.id) {
+    return;
+  }
+  for (const control of entry.querySelectorAll("input, select")) {
+    control.value = draft.values[control.name];
+  }
+}
+
 function render() {
   const { records } = getState();
   activeRegex = compileRegex(view.query, view.ignoreCase ? "i" : "");
@@ -232,6 +255,7 @@ function render() {
   const visible = sortRecords(matching, view.sortKey, view.sortDirection);
   showSearchFeedback(patternIsInvalid, visible.length, records.length);
   const focusKey = document.activeElement?.dataset.focusKey;
+  const draft = readEditDraft();
   sortSelect.value = view.sortKey + "-" + view.sortDirection;
   if (records.length === 0) {
     container.replaceChildren(buildEmptyState("No records yet. Add your first one with the form below."));
@@ -242,6 +266,7 @@ function render() {
     return;
   }
   container.replaceChildren(wideScreen.matches ? buildTable(visible) : buildCardList(visible));
+  applyEditDraft(draft);
   restoreFocus(focusKey);
 }
 
