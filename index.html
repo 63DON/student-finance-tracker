@@ -80,6 +80,46 @@
     </section>
     <section id="add" class="section" aria-labelledby="addHeading">
       <h2 id="addHeading">Add a record</h2>
+      <form class="panel" id="recordForm" novalidate>
+        <div class="form-grid">
+          <div class="field field-wide">
+            <label for="descriptionInput">Description</label>
+            <input id="descriptionInput" name="description" type="text" autocomplete="off" required aria-describedby="descriptionHint descriptionError descriptionWarning">
+            <p class="field-hint" id="descriptionHint">What you paid for, for example Lunch at the cafeteria.</p>
+            <p class="field-error" id="descriptionError"></p>
+            <p class="field-warning" id="descriptionWarning"></p>
+          </div>
+          <div class="field">
+            <label for="amountInput">Amount <span id="amountCurrency">(USD)</span></label>
+            <input id="amountInput" name="amount" type="text" inputmode="decimal" autocomplete="off" required aria-describedby="amountHint amountError">
+            <p class="field-hint" id="amountHint">Digits only, up to two decimals, for example 12.50.</p>
+            <p class="field-error" id="amountError"></p>
+          </div>
+          <div class="field">
+            <label for="categoryInput">Category</label>
+            <select id="categoryInput" name="category" required aria-describedby="categoryError">
+              <option>Food</option>
+              <option>Books</option>
+              <option>Transport</option>
+              <option>Entertainment</option>
+              <option>Fees</option>
+              <option>Other</option>
+            </select>
+            <p class="field-error" id="categoryError"></p>
+          </div>
+          <div class="field">
+            <label for="dateInput">Date</label>
+            <input id="dateInput" name="date" type="text" inputmode="numeric" autocomplete="off" placeholder="YYYY-MM-DD" required aria-describedby="dateHint dateError">
+            <p class="field-hint" id="dateHint">Year, month, day, for example 2025-09-29.</p>
+            <p class="field-error" id="dateError"></p>
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="button button-primary" type="submit">Add record</button>
+          <button class="button" type="reset">Clear form</button>
+        </div>
+        <p class="status-line" id="formStatus" role="status"></p>
+      </form>
     </section>
     <section id="settings" class="section" aria-labelledby="settingsHeading">
       <h2 id="settingsHeading">Settings</h2>
