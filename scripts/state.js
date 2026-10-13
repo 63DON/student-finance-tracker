@@ -112,3 +112,28 @@ export function mergeRecords(records) {
   adoptRecords(records);
   notify({ type: "merge" });
 }
+
+export function addCategory(name) {
+  state.settings.categories.push(name);
+  notify({ type: "categories" });
+}
+
+export function renameCategory(oldName, newName) {
+  const timestamp = new Date().toISOString();
+  let updatedCount = 0;
+  state.settings.categories = state.settings.categories.map((name) => (name === oldName ? newName : name));
+  for (const record of state.records) {
+    if (record.category === oldName) {
+      record.category = newName;
+      record.updatedAt = timestamp;
+      updatedCount += 1;
+    }
+  }
+  notify({ type: "categories" });
+  return updatedCount;
+}
+
+export function removeCategory(name) {
+  state.settings.categories = state.settings.categories.filter((existing) => existing !== name);
+  notify({ type: "categories" });
+}

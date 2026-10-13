@@ -706,6 +706,27 @@ mark {
   margin-top: var(--space-2);
 }
 
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.category-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.category-item input {
+  flex: 1 1 7rem;
+  width: auto;
+  min-width: 0;
+  min-height: 2.25rem;
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

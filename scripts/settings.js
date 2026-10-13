@@ -1,6 +1,18 @@
-import { getState, subscribe, updateSettings } from "./state.js";
-import { validateBudgetCap, validateCurrencyCode, validateExchangeRate } from "./validators.js";
-import { showFieldResult, createElement } from "./ui.js";
+import {
+  getState,
+  subscribe,
+  updateSettings,
+  addCategory,
+  renameCategory,
+  removeCategory
+} from "./state.js";
+import {
+  validateBudgetCap,
+  validateCurrencyCode,
+  validateExchangeRate,
+  validateCategory
+} from "./validators.js";
+import { showFieldResult, clearFieldResult, createElement } from "./ui.js";
 
 const budgetForm = document.querySelector("#budgetForm");
 const budgetCapInput = document.querySelector("#budgetCapInput");
@@ -115,12 +127,133 @@ function changeDisplayCurrency() {
   currencyStatus.textContent = "Amounts are now shown in " + displayCurrencySelect.value + ".";
 }
 
+const categoryList = document.querySelector("#categoryList");
+const categoryForm = document.querySelector("#categoryForm");
+const newCategoryInput = document.querySelector("#newCategoryInput");
+const newCategoryError = document.querySelector("#newCategoryError");
+const categoryStatus = document.querySelector("#categoryStatus");
+
+let renderedCategories = null;
+
+function buildCategoryItem(name) {
+  return createElement("li", { className: "category-item", "data-category": name }, [
+    createElement("input", { type: "text", value: name, autocomplete: "off", "aria-label": "Name for " + name }),
+    createElement("button", { type: "button", className: "button button-small", "data-action": "rename", "aria-label": "Rename " + name, text: "Rename" }),
+    createElement("button", { type: "button", className: "button button-small button-danger", "data-action": "remove", "aria-label": "Remove " + name, text: "Remove" })
+  ]);
+}
+
+function renderCategories() {
+  const { categories } = getState().settings;
+  const signature = categories.join("|");
+  if (signature === renderedCategories) {
+    return;
+  }
+  renderedCategories = signature;
+  categoryList.replaceChildren(...categories.map(buildCategoryItem));
+}
+
+function checkCategoryName(name, currentName) {
+  if (name === "") {
+    return { valid: false, message: "Enter a category name." };
+  }
+  const result = validateCategory(name);
+  if (!result.valid) {
+    return result;
+  }
+  const isTaken = getState().settings.categories.some((existing) => (
+    existing !== currentName && existing.toLowerCase() === name.toLowerCase()
+  ));
+  return isTaken ? { valid: false, message: "That category already exists." } : result;
+}
+
+function findCategoryInput(name) {
+  const items = Array.from(categoryList.children);
+  const item = items.find((entry) => entry.dataset.category === name);
+  return item ? item.querySelector("input") : newCategoryInput;
+}
+
+function addNewCategory() {
+  const name = newCategoryInput.value;
+  const result = checkCategoryName(name, null);
+  showFieldResult(newCategoryInput, newCategoryError, result);
+  if (!result.valid) {
+    newCategoryInput.focus();
+    return;
+  }
+  addCategory(name);
+  newCategoryInput.value = "";
+  clearFieldResult(newCategoryInput, newCategoryError);
+  categoryStatus.textContent = "Added " + name + ".";
+}
+
+function renameFromItem(item) {
+  const oldName = item.dataset.category;
+  const input = item.querySelector("input");
+  const newName = input.value;
+  if (newName === oldName) {
+    categoryStatus.textContent = "Type a new name for " + oldName + " first.";
+    return;
+  }
+  const result = checkCategoryName(newName, oldName);
+  input.setAttribute("aria-invalid", String(!result.valid));
+  if (!result.valid) {
+    categoryStatus.textContent = oldName + " was not renamed. " + result.message;
+    input.focus();
+    return;
+  }
+  const updatedCount = renameCategory(oldName, newName);
+  categoryStatus.textContent = "Renamed " + oldName + " to " + newName + ". Records updated: " + updatedCount + ".";
+  findCategoryInput(newName).focus();
+}
+
+function removeFromItem(item) {
+  const name = item.dataset.category;
+  if (getState().settings.categories.length === 1) {
+    categoryStatus.textContent = "Keep at least one category.";
+    return;
+  }
+  removeCategory(name);
+  categoryStatus.textContent = "Removed " + name + ". Records that used it keep their label.";
+  newCategoryInput.focus();
+}
+
+function handleCategoryClick(event) {
+  const button = event.target.closest("[data-action]");
+  if (!button) {
+    return;
+  }
+  const item = button.closest("li");
+  if (button.dataset.action === "rename") {
+    renameFromItem(item);
+  } else {
+    removeFromItem(item);
+  }
+}
+
+function handleCategoryKeys(event) {
+  if (event.key === "Enter" && event.target.matches("input")) {
+    event.preventDefault();
+    renameFromItem(event.target.closest("li"));
+  }
+}
+
+function initCategories() {
+  categoryList.addEventListener("click", handleCategoryClick);
+  categoryList.addEventListener("keydown", handleCategoryKeys);
+  categoryForm.addEventListener("submit", addNewCategory);
+  newCategoryInput.addEventListener("input", () => {
+    showFieldResult(newCategoryInput, newCategoryError, checkCategoryName(newCategoryInput.value, null));
+  });
+}
+
 function handleStateChange(state, change) {
   if (change.type === "load" || change.type === "clear") {
     fillBudgetInput();
     fillCurrencyInputs();
   }
   renderDisplayOptions();
+  renderCategories();
 }
 
 export function initSettings() {
@@ -131,6 +264,7 @@ export function initSettings() {
   }
   currencyForm.addEventListener("submit", saveCurrencies);
   displayCurrencySelect.addEventListener("change", changeDisplayCurrency);
+  initCategories();
   subscribe(handleStateChange);
   handleStateChange(getState(), { type: "load" });
 }
