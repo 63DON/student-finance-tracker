@@ -327,3 +327,71 @@ select[aria-invalid="true"] {
 .button-row .button {
   flex: 1 1 100%;
 }
+
+.status-line {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-surface-alt);
+  border-left: 4px solid var(--color-accent);
+}
+
+.empty-state {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-5) var(--space-4);
+  color: var(--color-text-muted);
+  text-align: center;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+}
+
+.stat-list,
+.form-grid,
+.settings-grid,
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stat-list {
+  margin-bottom: var(--space-3);
+}
+
+.stat {
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.stat h3 {
+  margin-bottom: var(--space-1);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.stat-value {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xlarge);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.stat-note {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.form-grid .field,
+.toolbar .field {
+  margin-bottom: 0;
+}
+
+.form-grid {
+  margin-bottom: var(--space-4);
+}
