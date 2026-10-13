@@ -9,6 +9,7 @@ import {
   validateCurrencyCode,
   findDuplicateWord
 } from "../scripts/validators.js";
+import { compileRegex, filterRecords, sortRecords, escapeHtml, highlight } from "../scripts/search.js";
 
 const results = [];
 let currentGroup = "";
@@ -123,6 +124,33 @@ group("Budget cap and currency code", () => {
   rejects(validateCurrencyCode, "usd");
   rejects(validateCurrencyCode, "US");
   rejects(validateCurrencyCode, "USDT");
+});
+
+group("Safe regex compiler", () => {
+  check("returns a RegExp for a good pattern", compileRegex("coffee") instanceof RegExp, true);
+  check("returns null for an unclosed group", compileRegex("(coffee"), null);
+  check("returns null for an unclosed bracket", compileRegex("[a-"), null);
+  check("returns null for a dangling quantifier", compileRegex("*tea"), null);
+  check("returns null for an empty pattern", compileRegex(""), null);
+  check("ignores case by default", compileRegex("coffee").test("COFFEE"), true);
+  check("respects case when the flag is removed", compileRegex("coffee", "").test("COFFEE"), false);
+});
+
+group("Filtering and sorting", () => {
+  const sample = [
+    { id: "txn_0001", description: "Coffee beans", amount: 7.5, category: "Food", date: "2025-03-02", createdAt: "a" },
+    { id: "txn_0002", description: "bus pass", amount: 20, category: "Transport", date: "2025-03-01", createdAt: "b" },
+    { id: "txn_0003", description: "Tea", amount: 1.25, category: "Food", date: "2025-03-03", createdAt: "c" }
+  ];
+  const ids = (records) => records.map((record) => record.id.slice(-1)).join("");
+  check("keeps every record when there is no pattern", filterRecords(sample, null).length, 3);
+  check("matches descriptions", ids(filterRecords(sample, compileRegex("(coffee|tea)"))), "13");
+  check("matches categories", ids(filterRecords(sample, compileRegex("^transport$"))), "2");
+  check("sorts by date ascending", ids(sortRecords(sample, "date", "ascending")), "213");
+  check("sorts by date descending", ids(sortRecords(sample, "date", "descending")), "312");
+  check("sorts descriptions without caring about case", ids(sortRecords(sample, "description", "ascending")), "213");
+  check("sorts by amount descending", ids(sortRecords(sample, "amount", "descending")), "213");
+  check("leaves the original array alone", ids(sample), "123");
 });
 
 renderResults();
