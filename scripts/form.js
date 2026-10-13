@@ -2,12 +2,14 @@ import {
   validateDescription,
   validateAmount,
   validateCategory,
-  validateDate
+  validateDate,
+  findDuplicateWord
 } from "./validators.js";
 import { showFieldResult, clearFieldResult } from "./ui.js";
 
 const form = document.querySelector("#recordForm");
 const formStatus = document.querySelector("#formStatus");
+const descriptionWarning = document.querySelector("#descriptionWarning");
 
 const fields = [
   { name: "description", label: "Description", validate: validateDescription },
@@ -33,11 +35,19 @@ function todayText() {
   return now.getFullYear() + "-" + month + "-" + day;
 }
 
+function showDuplicateWordWarning() {
+  const word = findDuplicateWord(form.elements.description.value);
+  descriptionWarning.textContent = word
+    ? "The word \"" + word + "\" appears twice in a row. Is that a typo?"
+    : "";
+}
+
 function clearFields() {
   for (const field of fields) {
     clearFieldResult(field.input, field.error);
   }
   form.elements.description.value = "";
+  descriptionWarning.textContent = "";
   form.elements.amount.value = "";
   form.elements.category.selectedIndex = 0;
   form.elements.date.value = todayText();
@@ -75,5 +85,6 @@ export function initForm() {
   }
   form.addEventListener("submit", handleSubmit);
   form.addEventListener("reset", handleReset);
+  form.elements.description.addEventListener("input", showDuplicateWordWarning);
   form.elements.date.value = todayText();
 }
