@@ -348,7 +348,7 @@ function startEdit(id) {
   view.editingId = id;
   render();
   container.querySelector("[data-editing] [name=\"description\"]").focus();
-  setText(recordsStatus, "Editing. Use Save or Cancel when you are done.");
+  setText(recordsStatus, "Editing. Press Enter to save or Escape to cancel.");
 }
 
 function cancelEdit(id) {
@@ -394,6 +394,20 @@ function handleEditInput(event) {
   entry.querySelector(".field-error").textContent = checkEditControl(event.target).message;
 }
 
+function handleEditKeys(event) {
+  const entry = event.target.closest("[data-editing]");
+  if (!entry) {
+    return;
+  }
+  if (event.key === "Escape") {
+    event.preventDefault();
+    cancelEdit(entry.dataset.id);
+  } else if (event.key === "Enter" && event.target.matches("input, select")) {
+    event.preventDefault();
+    saveEdit(entry);
+  }
+}
+
 function handleActionClick(event) {
   const button = event.target.closest("[data-action]");
   if (!button) {
@@ -425,6 +439,7 @@ export function initRecords() {
   container.addEventListener("click", handleSortClick);
   container.addEventListener("click", handleActionClick);
   container.addEventListener("input", handleEditInput);
+  container.addEventListener("keydown", handleEditKeys);
   sortSelect.addEventListener("change", handleSortSelect);
   searchInput.addEventListener("input", handleSearchInput);
   document.querySelector("#hintList").addEventListener("click", handleHintClick);
