@@ -3,7 +3,11 @@ import {
   validateDescription,
   validateAmount,
   validateDate,
-  validateCategory
+  validateCategory,
+  validateExchangeRate,
+  validateBudgetCap,
+  validateCurrencyCode,
+  findDuplicateWord
 } from "../scripts/validators.js";
 
 const results = [];
@@ -90,6 +94,35 @@ group("Category", () => {
   for (const value of ["", "Food2", " Food", "Food ", "Food  Drinks", "Food-", "Fees!"]) {
     rejects(validateCategory, value);
   }
+});
+
+group("Duplicate word (back-reference)", () => {
+  check("finds a repeated word", findDuplicateWord("paid for the the bus"), "the");
+  check("ignores case when comparing", findDuplicateWord("Coffee coffee again"), "Coffee");
+  check("does not flag a word that only starts the same", findDuplicateWord("the theme park"), null);
+  check("returns null when nothing repeats", findDuplicateWord("bus fare home"), null);
+});
+
+group("Exchange rate (lookahead)", () => {
+  for (const value of ["1", "0.5", "1450", "0.0001", "10.25"]) {
+    accepts(validateExchangeRate, value);
+  }
+  for (const value of ["", "0", "0.00", "0.0000", "1.23456", ".5", "-1", "abc"]) {
+    rejects(validateExchangeRate, value);
+  }
+});
+
+group("Budget cap and currency code", () => {
+  accepts(validateBudgetCap, "");
+  accepts(validateBudgetCap, "500");
+  accepts(validateBudgetCap, "0");
+  rejects(validateBudgetCap, "5.555");
+  rejects(validateBudgetCap, "lots");
+  accepts(validateCurrencyCode, "USD");
+  accepts(validateCurrencyCode, "RWF");
+  rejects(validateCurrencyCode, "usd");
+  rejects(validateCurrencyCode, "US");
+  rejects(validateCurrencyCode, "USDT");
 });
 
 renderResults();
