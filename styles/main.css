@@ -727,6 +727,30 @@ mark {
   min-height: 2.25rem;
 }
 
+:root[data-theme="dark"] {
+  --color-page: #11171d;
+  --color-surface: #1a222b;
+  --color-surface-alt: #26313d;
+  --color-text: #e9eef3;
+  --color-text-muted: #b4bfca;
+  --color-border: #8793a0;
+  --color-accent: #6bd6b8;
+  --color-accent-strong: #8fe3cb;
+  --color-on-accent: #06241c;
+  --color-danger: #ff9d9d;
+  --color-warning: #ffcf7a;
+  --color-mark: #ffd866;
+  --color-mark-text: #1c2530;
+  --color-focus: #9cc2ff;
+  color-scheme: dark;
+}
+
+.theme-toggle[aria-pressed="true"] {
+  color: var(--color-on-accent);
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

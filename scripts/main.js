@@ -6,6 +6,7 @@ import { initRecords } from "./records.js";
 import { initDashboard } from "./dashboard.js";
 import { initSettings } from "./settings.js";
 import { initDataTools } from "./dataTools.js";
+import { initTheme } from "./theme.js";
 
 const navLinks = Array.from(document.querySelectorAll(".nav-list a"));
 const sections = navLinks.map((link) => document.querySelector(link.hash));
@@ -96,5 +97,6 @@ initRecords();
 initDashboard();
 initSettings();
 initDataTools();
+initTheme();
 subscribe(saveAfterEveryChange);
 loadSavedData();

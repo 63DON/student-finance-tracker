@@ -140,6 +140,6 @@ export function removeCategory(name) {
 
 export function clearAll() {
   state.records = [];
-  state.settings = createDefaultSettings();
+  state.settings = { ...createDefaultSettings(), theme: state.settings.theme };
   notify({ type: "clear" });
 }
