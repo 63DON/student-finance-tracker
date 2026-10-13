@@ -395,3 +395,23 @@ select[aria-invalid="true"] {
 .form-grid {
   margin-bottom: var(--space-4);
 }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+.button-primary:focus-visible,
+.skip-link:focus-visible {
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--color-surface);
+}
+
+main:focus-visible {
+  outline: none;
+}
