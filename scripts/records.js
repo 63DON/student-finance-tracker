@@ -2,6 +2,7 @@ import { getState, subscribe, deleteRecord, updateRecord } from "./state.js";
 import { createElement, formatAmount, setText } from "./ui.js";
 import { compileRegex, filterRecords, sortRecords, highlight } from "./search.js";
 import { openDialog } from "./dialog.js";
+import { convertAmount } from "./stats.js";
 import {
   validateDescription,
   validateAmount,
@@ -43,7 +44,7 @@ function displayTexts(record) {
     date: record.date,
     description: record.description,
     category: record.category,
-    amount: formatAmount(record.amount)
+    amount: formatAmount(convertAmount(record.amount, getState().settings))
   };
 }
 
@@ -57,7 +58,7 @@ function entryAttributes(record, className) {
 }
 
 function buildAmount(texts) {
-  const currency = getState().settings.baseCurrency;
+  const currency = getState().settings.displayCurrency;
   return [currency + " ", createElement("span", cellAttributes(texts.amount))];
 }
 
@@ -183,7 +184,7 @@ function buildRow(record) {
 
 function buildTable(records) {
   return createElement("table", { className: "records-table" }, [
-    createElement("caption", { text: "Your transactions" }),
+    createElement("caption", { text: "Your transactions, amounts in " + getState().settings.displayCurrency }),
     createElement("thead", {}, [createElement("tr", {}, [
       ...columns.map(buildHeaderCell),
       createElement("th", { scope: "col", text: "Actions" })

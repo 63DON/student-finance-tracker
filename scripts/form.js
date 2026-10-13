@@ -7,12 +7,13 @@ import {
   collapseSpaces
 } from "./validators.js";
 import { showFieldResult, clearFieldResult } from "./ui.js";
-import { addRecord } from "./state.js";
+import { addRecord, getState, subscribe } from "./state.js";
 import { toIsoDate } from "./stats.js";
 
 const form = document.querySelector("#recordForm");
 const formStatus = document.querySelector("#formStatus");
 const descriptionWarning = document.querySelector("#descriptionWarning");
+const amountCurrency = document.querySelector("#amountCurrency");
 
 const fields = [
   { name: "description", label: "Description", validate: validateDescription },
@@ -86,6 +87,10 @@ function handleReset(event) {
   form.elements.description.focus();
 }
 
+function followSettings() {
+  amountCurrency.textContent = "(" + getState().settings.baseCurrency + ")";
+}
+
 export function initForm() {
   for (const field of fields) {
     field.input.addEventListener("input", () => validateField(field));
@@ -95,4 +100,6 @@ export function initForm() {
   form.addEventListener("reset", handleReset);
   form.elements.description.addEventListener("input", showDuplicateWordWarning);
   form.elements.date.value = todayText();
+  subscribe(followSettings);
+  followSettings();
 }
