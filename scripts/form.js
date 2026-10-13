@@ -8,6 +8,7 @@ import {
 } from "./validators.js";
 import { showFieldResult, clearFieldResult } from "./ui.js";
 import { addRecord } from "./state.js";
+import { toIsoDate } from "./stats.js";
 
 const form = document.querySelector("#recordForm");
 const formStatus = document.querySelector("#formStatus");
@@ -31,10 +32,7 @@ function validateField(field) {
 }
 
 function todayText() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return now.getFullYear() + "-" + month + "-" + day;
+  return toIsoDate(new Date());
 }
 
 function showDuplicateWordWarning() {
