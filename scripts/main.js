@@ -1,6 +1,7 @@
 import { initForm } from "./form.js";
 import { initRecords } from "./records.js";
 import { initDashboard } from "./dashboard.js";
+import { initSettings } from "./settings.js";
 
 const navLinks = Array.from(document.querySelectorAll(".nav-list a"));
 const sections = navLinks.map((link) => document.querySelector(link.hash));
@@ -53,3 +54,4 @@ initNavigation();
 initForm();
 initRecords();
 initDashboard();
+initSettings();

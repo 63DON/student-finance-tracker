@@ -56,3 +56,8 @@ export function addRecord(fields) {
   notify({ type: "add", id: record.id });
   return record;
 }
+
+export function updateSettings(changes) {
+  Object.assign(state.settings, changes);
+  notify({ type: "settings" });
+}
