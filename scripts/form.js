@@ -3,9 +3,11 @@ import {
   validateAmount,
   validateCategory,
   validateDate,
-  findDuplicateWord
+  findDuplicateWord,
+  collapseSpaces
 } from "./validators.js";
 import { showFieldResult, clearFieldResult } from "./ui.js";
+import { addRecord } from "./state.js";
 
 const form = document.querySelector("#recordForm");
 const formStatus = document.querySelector("#formStatus");
@@ -68,7 +70,15 @@ function handleSubmit() {
     invalidFields[0].input.focus();
     return;
   }
-  formStatus.textContent = "All four fields are valid.";
+  const record = addRecord({
+    description: collapseSpaces(form.elements.description.value),
+    amount: Number(form.elements.amount.value),
+    category: form.elements.category.value,
+    date: form.elements.date.value
+  });
+  clearFields();
+  formStatus.textContent = "Added \"" + record.description + "\" to your records.";
+  form.elements.description.focus();
 }
 
 function handleReset(event) {
