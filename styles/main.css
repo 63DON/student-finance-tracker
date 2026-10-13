@@ -542,6 +542,20 @@ th[aria-sort="descending"] .sort-button {
   color: var(--color-accent);
 }
 
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.check input {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--color-accent);
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

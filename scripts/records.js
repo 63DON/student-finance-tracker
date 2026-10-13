@@ -6,6 +6,7 @@ const container = document.querySelector("#recordsContainer");
 const searchInput = document.querySelector("#searchInput");
 const searchError = document.querySelector("#searchError");
 const searchStatus = document.querySelector("#searchStatus");
+const caseToggle = document.querySelector("#caseToggle");
 const wideScreen = window.matchMedia("(min-width: 48em)");
 const sortSelect = document.querySelector("#sortSelect");
 
@@ -201,5 +202,9 @@ export function initRecords() {
   container.addEventListener("click", handleSortClick);
   sortSelect.addEventListener("change", handleSortSelect);
   searchInput.addEventListener("input", handleSearchInput);
+  caseToggle.addEventListener("change", () => {
+    view.ignoreCase = caseToggle.checked;
+    render();
+  });
   render();
 }
