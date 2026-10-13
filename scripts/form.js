@@ -109,7 +109,11 @@ function followSettings() {
 export function initForm() {
   for (const field of fields) {
     field.input.addEventListener("input", () => validateField(field));
-    field.input.addEventListener("blur", () => validateField(field));
+    field.input.addEventListener("blur", () => {
+      if (field.input.value !== "") {
+        validateField(field);
+      }
+    });
   }
   form.addEventListener("submit", handleSubmit);
   form.addEventListener("reset", handleReset);
