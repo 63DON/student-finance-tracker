@@ -70,5 +70,86 @@
     "date": "2026-09-15",
     "createdAt": "2026-09-15T11:00:00.000Z",
     "updatedAt": "2026-09-15T11:00:00.000Z"
+  },
+  {
+    "id": "txn_0009",
+    "description": "Leap day pizza",
+    "amount": 11.5,
+    "category": "Food",
+    "date": "2024-02-29",
+    "createdAt": "2024-02-29T18:45:00.000Z",
+    "updatedAt": "2024-02-29T18:45:00.000Z"
+  },
+  {
+    "id": "txn_0010",
+    "description": "New Year's Eve taxi home",
+    "amount": 18,
+    "category": "Transport",
+    "date": "2025-12-31",
+    "createdAt": "2025-12-31T23:10:00.000Z",
+    "updatedAt": "2025-12-31T23:10:00.000Z"
+  },
+  {
+    "id": "txn_0011",
+    "description": "Gym \"student\" pass",
+    "amount": 25,
+    "category": "Other",
+    "date": "2026-01-01",
+    "createdAt": "2026-01-01T09:00:00.000Z",
+    "updatedAt": "2026-01-01T09:00:00.000Z"
+  },
+  {
+    "id": "txn_0012",
+    "description": "Pens & highlighters",
+    "amount": 3.2,
+    "category": "Books",
+    "date": "2026-08-31",
+    "createdAt": "2026-08-31T13:25:00.000Z",
+    "updatedAt": "2026-08-31T13:25:00.000Z"
+  },
+  {
+    "id": "txn_0013",
+    "description": "One page photocopy",
+    "amount": 0.01,
+    "category": "Fees",
+    "date": "2026-10-07",
+    "createdAt": "2026-10-07T15:50:00.000Z",
+    "updatedAt": "2026-10-07T15:50:00.000Z"
+  },
+  {
+    "id": "txn_0014",
+    "description": "Free campus concert",
+    "amount": 0,
+    "category": "Entertainment",
+    "date": "2026-10-11",
+    "createdAt": "2026-10-11T20:00:00.000Z",
+    "updatedAt": "2026-10-11T20:00:00.000Z"
+  },
+  {
+    "id": "txn_0015",
+    "description": "Full year accommodation",
+    "amount": 99999.99,
+    "category": "Fees",
+    "date": "2026-01-15",
+    "createdAt": "2026-01-15T08:30:00.000Z",
+    "updatedAt": "2026-01-15T08:30:00.000Z"
+  },
+  {
+    "id": "txn_0016",
+    "description": "<b>bold</b> marker set",
+    "amount": 7.25,
+    "category": "Books",
+    "date": "2026-09-02",
+    "createdAt": "2026-09-02T12:00:00.000Z",
+    "updatedAt": "2026-09-02T12:00:00.000Z"
+  },
+  {
+    "id": "txn_0017",
+    "description": "Paid the the lab deposit",
+    "amount": 40,
+    "category": "Fees",
+    "date": "2026-09-20",
+    "createdAt": "2026-09-20T10:05:00.000Z",
+    "updatedAt": "2026-09-20T10:05:00.000Z"
   }
 ]
