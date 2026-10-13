@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>harness</title></head>
+<body>
+<pre id="log"></pre>
+<iframe id="app" title="app" style="width:1100px;height:900px"></iframe>
+<script>
+const log = (message) => { document.getElementById("log").textContent += message + "\n"; };
+const frame = document.getElementById("app");
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+localStorage.clear();
+frame.addEventListener("load", async () => {
+  try {
+    const w = frame.contentWindow;
+    const d = frame.contentDocument;
+    w.addEventListener("error", (event) => log("APP ERROR " + event.message));
+    w.addEventListener("unhandledrejection", (event) => log("APP REJECTION " + event.reason));
+    await wait(400);
+    const $ = (selector) => d.querySelector(selector);
+    const type = (selector, value) => { const el = $(selector); el.value = value; el.dispatchEvent(new w.Event("input", { bubbles: true })); };
+    const add = (description, amount, category, date) => {
+      type("#descriptionInput", description); type("#amountInput", amount);
+      $("#categoryInput").value = category; type("#dateInput", date);
+      $("#recordForm").requestSubmit();
+    };
+    const rows = () => Array.from(d.querySelectorAll("#recordsContainer [data-id]")).map((el) => el.textContent.replace(/\s+/g, " ").trim());
+    log("start rows: " + rows().length + " | " + $("#recordsContainer").textContent.trim().slice(0, 60));
+    $("#recordForm").requestSubmit();
+    log("empty submit: " + $("#formStatus").textContent + " | focus=" + d.activeElement.id);
+    type("#descriptionInput", "the the coffee");
+    log("dup warning: " + $("#descriptionWarning").textContent);
+    type("#amountInput", "012");
+    log("amount error: " + $("#amountError").textContent + " invalid=" + $("#amountInput").getAttribute("aria-invalid"));
+    type("#dateInput", "2025-02-30");
+    log("date error: " + $("#dateError").textContent);
+    add("Iced  coffee <b>bold</b>", "4.50", "Food", "2025-03-02");
+    add("Bus pass & tea", "20", "Transport", "2025-03-01");
+    add("Notebook", "3.25", "Books", "2025-03-03");
+    log("status: " + $("#formStatus").textContent + " | focus=" + d.activeElement.id);
+    log("rows: " + JSON.stringify(rows()));
+    log("no raw bold element: " + (d.querySelector("#recordsContainer b") === null));
+    d.querySelector("[data-sort-key=amount]").focus();
+    d.querySelector("[data-sort-key=amount]").click();
+    log("amount asc: " + JSON.stringify(rows()) + " aria-sort=" + d.querySelector("[data-sort-key=amount]").closest("th").getAttribute("aria-sort") + " focusKept=" + (d.activeElement.dataset.sortKey === "amount"));
+    d.querySelector("[data-sort-key=amount]").click();
+    log("amount desc first: " + rows()[0]);
+    type("#searchInput", "(coffee|tea)");
+    log("search: " + $("#searchStatus").textContent + " marks=" + d.querySelectorAll("#recordsContainer mark").length);
+    type("#searchInput", "(coffee");
+    log("invalid: " + $("#searchError").textContent + " | " + $("#searchStatus").textContent + " rows=" + rows().length);
+    type("#searchInput", "COFFEE");
+    log("ignore case on: " + rows().length);
+    $("#caseToggle").click();
+    log("ignore case off: " + rows().length + " | " + $("#recordsContainer").textContent.trim().slice(0, 40));
+    $("#caseToggle").click();
+    d.querySelector("[data-pattern]").click();
+    log("hint: " + $("#searchInput").value + " -> " + $("#searchStatus").textContent);
+    type("#searchInput", "");
+    frame.style.width = "360px";
+    await wait(400);
+    log("mobile cards: " + d.querySelectorAll(".record-card").length + " table=" + (d.querySelector("table") !== null));
+    $("#sortSelect").value = "description-ascending";
+    $("#sortSelect").dispatchEvent(new w.Event("change", { bubbles: true }));
+    log("mobile sorted: " + rows()[0]);
+    frame.style.width = "1100px";
+    await wait(300);
+    if (window.extraChecks) { await window.extraChecks({ w, d, $, type, add, rows, log, wait, frame }); }
+  } catch (error) {
+    log("EXCEPTION " + error.stack);
+  }
+  log("DONE");
+});
+frame.src = "index.html";
+</script>
+</body>
+</html>
