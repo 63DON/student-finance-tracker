@@ -1,5 +1,6 @@
 import { loadData, saveData } from "./storage.js";
 import { hydrate, replaceRecords, subscribe } from "./state.js";
+import { validateRecords } from "./importExport.js";
 import { initForm } from "./form.js";
 import { initRecords } from "./records.js";
 import { initDashboard } from "./dashboard.js";
@@ -75,7 +76,11 @@ async function loadSavedData() {
     return;
   }
   try {
-    replaceRecords(await fetchSeedRecords());
+    const seed = validateRecords(await fetchSeedRecords());
+    if (!seed.valid) {
+      throw new Error("The seed file has bad records");
+    }
+    replaceRecords(seed.records);
     appNotice.textContent = stored.status === "corrupted"
       ? "Your saved data could not be read, so the tracker started again with sample records."
       : "Sample records were loaded to get you started. You can clear them in Settings.";

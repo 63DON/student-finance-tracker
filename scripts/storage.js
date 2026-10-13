@@ -1,3 +1,5 @@
+import { validateRecords } from "./importExport.js";
+
 const storageKey = "studentFinanceTracker";
 
 function isPlainObject(value) {
@@ -7,6 +9,7 @@ function isPlainObject(value) {
 function hasExpectedShape(data) {
   return isPlainObject(data)
     && Array.isArray(data.records)
+    && validateRecords(data.records).valid
     && isPlainObject(data.settings)
     && Array.isArray(data.settings.categories)
     && Array.isArray(data.settings.otherCurrencies)
