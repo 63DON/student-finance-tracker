@@ -581,6 +581,21 @@ mark {
   font-size: var(--text-small);
 }
 
+.is-new {
+  animation: fade-in 700ms ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    background-color: var(--color-mark);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @media (min-width: 22.5em) {
   .site-header-inner {
     padding: var(--space-3) var(--space-4);

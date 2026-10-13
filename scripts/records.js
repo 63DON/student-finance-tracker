@@ -21,7 +21,8 @@ const view = {
   sortKey: "date",
   sortDirection: "descending",
   query: "",
-  ignoreCase: true
+  ignoreCase: true,
+  newRecordId: null
 };
 
 let activeRegex = null;
@@ -40,7 +41,8 @@ function cellAttributes(text) {
 }
 
 function entryAttributes(record, className) {
-  return { "data-id": record.id, className };
+  const isNew = record.id === view.newRecordId;
+  return { "data-id": record.id, className: isNew ? className + " is-new" : className };
 }
 
 function buildAmount(texts) {
@@ -207,7 +209,11 @@ function handleHintClick(event) {
 }
 
 export function initRecords() {
-  subscribe(render);
+  subscribe((state, change) => {
+    view.newRecordId = change.type === "add" ? change.id : null;
+    render();
+    view.newRecordId = null;
+  });
   wideScreen.addEventListener("change", render);
   container.addEventListener("click", handleSortClick);
   sortSelect.addEventListener("change", handleSortSelect);
