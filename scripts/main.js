@@ -1,3 +1,5 @@
+import { initForm } from "./form.js";
+
 const navLinks = Array.from(document.querySelectorAll(".nav-list a"));
 const sections = navLinks.map((link) => document.querySelector(link.hash));
 
@@ -46,3 +48,4 @@ function stopFormsFromReloadingThePage() {
 
 stopFormsFromReloadingThePage();
 initNavigation();
+initForm();
