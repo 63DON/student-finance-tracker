@@ -195,3 +195,135 @@ main:focus {
 .site-footer p {
   margin: 0;
 }
+
+.panel {
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field-spaced {
+  margin-top: var(--space-4);
+}
+
+.field-pair {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.field-pair .field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+label {
+  font-weight: 600;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input[type="text"],
+input[type="search"],
+input[type="file"],
+select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.field-hint,
+.field-error,
+.field-warning {
+  margin: 0;
+  font-size: var(--text-small);
+}
+
+.field-hint {
+  color: var(--color-text-muted);
+}
+
+.field-error {
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.field-warning {
+  font-weight: 600;
+  color: var(--color-warning);
+}
+
+.field-error:empty,
+.field-warning:empty,
+.status-line:empty,
+.stat-note:empty {
+  display: none;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-4);
+  font-weight: 600;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.button:hover {
+  background-color: var(--color-surface-alt);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button-primary {
+  color: var(--color-on-accent);
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.button-primary:hover {
+  background-color: var(--color-accent-strong);
+}
+
+.button-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.button-row .button {
+  flex: 1 1 100%;
+}
